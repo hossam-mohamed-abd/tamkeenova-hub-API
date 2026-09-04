@@ -1,12 +1,14 @@
 import express from 'express';
 import serverlessExpress from '@codegenie/serverless-express';
 
+import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
+
+import { AppModule } from '../src/app.module';
+
 let cachedServer: any;
 
 async function bootstrap() {
-  const { NestFactory } = await import('@nestjs/core');
-  const { ExpressAdapter } = await import('@nestjs/platform-express');
-  const { AppModule } = await import('../dist/app.module.js');
   const expressApp = express();
 
   const app = await NestFactory.create(
