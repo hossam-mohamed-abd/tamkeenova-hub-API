@@ -6,7 +6,7 @@ let cachedServer: any;
 async function bootstrap() {
   const { NestFactory } = await import('@nestjs/core');
   const { ExpressAdapter } = await import('@nestjs/platform-express');
-  const { AppModule } = await import('../src/app.module.js');
+  const { AppModule } = await import('../dist/app.module.js');
   const expressApp = express();
 
   const app = await NestFactory.create(
