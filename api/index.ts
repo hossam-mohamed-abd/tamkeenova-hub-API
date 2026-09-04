@@ -1,16 +1,15 @@
-import { NestFactory } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
-
 import express from 'express';
 import serverlessExpress from '@codegenie/serverless-express';
 
-import { AppModule } from '../src/app.module';
-
-const expressApp = express();
-
-let server: any;
+let cachedServer: any;
 
 async function bootstrap() {
+  const { NestFactory } = await import('@nestjs/core');
+  const { ExpressAdapter } = await import('@nestjs/platform-express');
+  const { AppModule } = await import('../src/app.module');
+
+  const expressApp = express();
+
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressApp),
@@ -31,7 +30,9 @@ async function bootstrap() {
 }
 
 export default async function handler(req: any, res: any) {
-  server ??= await bootstrap();
+  if (!cachedServer) {
+    cachedServer = await bootstrap();
+  }
 
-  return server(req, res);
+  return cachedServer(req, res);
 }
