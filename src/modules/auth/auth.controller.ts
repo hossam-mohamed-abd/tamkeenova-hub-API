@@ -1,10 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { LoginDto } from './dto/login.dto';
-import { Get, UseGuards } from '@nestjs/common';
+
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -38,6 +38,14 @@ export class AuthController {
     return {
       success: true,
       data: user,
+    };
+  }
+
+  @Get('health')
+  health() {
+    return {
+      success: true,
+      message: 'API is running',
     };
   }
 }

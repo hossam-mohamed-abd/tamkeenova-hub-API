@@ -6,6 +6,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './modules/mail/mail.module';
 import { TestModule } from './modules/test/test.module';
 import { LoggerModule } from './common/logger/logger.module';
+import { AppController } from './app.controller';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,5 +18,6 @@ import { LoggerModule } from './common/logger/logger.module';
     AuthModule,
     MailModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
