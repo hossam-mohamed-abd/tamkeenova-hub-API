@@ -183,4 +183,18 @@ export class AuthRepository {
       },
     });
   }
+
+  async createNotification(data: {
+    user_id: string;
+    title: string;
+    message: string;
+  }) {
+    return this.prisma.notifications.create({
+      data: {
+        user_id: data.user_id,
+        title: data.title,
+        message: data.message,
+      },
+    });
+  }
 }

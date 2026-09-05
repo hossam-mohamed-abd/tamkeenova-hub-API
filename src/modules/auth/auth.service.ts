@@ -54,20 +54,26 @@ export class AuthService {
     if (dto.role === 'TRAINER') {
       await this.authRepository.createTrainer({
         user_id: user.id,
-
         slug: dto.username + '-' + Math.floor(Math.random() * 100000),
-
         trainer_status: 'PENDING',
       });
 
       const admin = await this.authRepository.findFirstAdmin();
 
       if (admin) {
+        // Email
         await this.mailService.sendTrainerRequestEmail(
           admin.email,
           dto.full_name,
           dto.email,
         );
+
+        // Notification
+        await this.authRepository.createNotification({
+          user_id: admin.id,
+          title: 'طلب مدرب جديد',
+          message: `${dto.full_name} قام بإرسال طلب تسجيل كمدرب`,
+        });
       }
     }
 

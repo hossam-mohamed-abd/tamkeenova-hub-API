@@ -1,8 +1,37 @@
-import { Controller, Post } from '@nestjs/common';
+// src/modules/test/test.controller.ts
 
-import { MailService } from '../mail/mail.service';
-import { Get } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { createClient } from '@supabase/supabase-js';
 
 @Controller('test')
 export class TestController {
+  @Get('upload')
+  async uploadTest() {
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SECRET_KEY!,
+    );
+
+    const fileContent = Buffer.from('Tamkeenova Storage Test', 'utf-8');
+
+    const fileName = `test-${Date.now()}.txt`;
+
+    const { data, error } = await supabase.storage
+      .from('tamkeenova')
+      .upload(fileName, fileContent, {
+        contentType: 'text/plain',
+      });
+
+    if (error) {
+      return {
+        success: false,
+        error,
+      };
+    }
+
+    return {
+      success: true,
+      data,
+    };
+  }
 }
