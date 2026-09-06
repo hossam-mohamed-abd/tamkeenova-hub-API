@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 
 import { TrainersModule } from './modules/trainers/trainers.module';
 
+import { SpecializationsModule } from './modules/specializations/specializations.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +24,7 @@ import { TrainersModule } from './modules/trainers/trainers.module';
     MailModule,
 
     TrainersModule,
+    SpecializationsModule,
   ],
   controllers: [AppController],
 })

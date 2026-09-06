@@ -64,6 +64,9 @@ GET /trainer/availability -->
 
 <!-- GET /trainer/bookings/:id -->
 
-GET /trainer/reviews
+<!-- GET /trainer/reviews
 
-GET /trainer/rating
+GET /trainer/rating -->
+
+
+<!-- GET /trainers/dashboard -->
