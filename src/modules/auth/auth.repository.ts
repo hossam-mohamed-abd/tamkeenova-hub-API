@@ -162,9 +162,42 @@ export class AuthRepository {
     });
   }
 
-  createTrainer(data: any) {
+  async createTrainer(data: any) {
     return this.prisma.trainers.create({
       data,
+    });
+  }
+  async createTrainerCertificates(trainerId: string, urls: string[]) {
+    if (!urls?.length) return;
+
+    return this.prisma.trainer_certificates.createMany({
+      data: urls.map((url) => ({
+        trainer_id: trainerId,
+        certificate_url: url,
+      })),
+    });
+  }
+
+  async createTrainerDocuments(
+    trainerId: string,
+    documents: {
+      file_name: string;
+      file_url: string;
+      file_type: string;
+    }[],
+  ) {
+    if (!documents?.length) return;
+
+    return this.prisma.trainer_documents.createMany({
+      data: documents.map((doc) => ({
+        trainer_id: trainerId,
+
+        file_name: doc.file_name,
+
+        file_url: doc.file_url,
+
+        file_type: doc.file_type,
+      })),
     });
   }
 
@@ -195,6 +228,20 @@ export class AuthRepository {
         title: data.title,
         message: data.message,
       },
+    });
+  }
+
+  findSpecializationById(id: string) {
+    return this.prisma.specializations.findUnique({
+      where: {
+        id,
+      },
+    });
+  }
+
+  createSpecialization(data: { name_ar: string; name_en: string }) {
+    return this.prisma.specializations.create({
+      data,
     });
   }
 }

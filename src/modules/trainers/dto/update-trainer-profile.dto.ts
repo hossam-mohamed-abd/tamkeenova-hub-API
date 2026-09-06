@@ -1,12 +1,9 @@
 import {
   IsArray,
-  IsEmail,
-  IsEnum,
   IsInt,
   IsOptional,
   IsString,
   IsUrl,
-  MinLength,
   ValidateNested,
 } from 'class-validator';
 
@@ -23,37 +20,7 @@ export class TrainerDocumentDto {
   file_type: string;
 }
 
-export class RegisterDto {
-  @IsString()
-  full_name: string;
-
-  @IsString()
-  username: string;
-
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  phone: string;
-
-  @MinLength(6)
-  password: string;
-
-  @IsEnum(['STUDENT', 'TRAINER'])
-  role: string;
-
-  @IsOptional()
-  @IsString()
-  specialization_id?: string;
-
-  @IsOptional()
-  @IsString()
-  specialization_name_ar?: string;
-
-  @IsOptional()
-  @IsString()
-  specialization_name_en?: string;
-
+export class UpdateTrainerProfileDto {
   @IsOptional()
   @IsString()
   bio_ar?: string;

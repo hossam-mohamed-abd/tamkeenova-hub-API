@@ -8,6 +8,8 @@ import { TestModule } from './modules/test/test.module';
 
 import { AppController } from './app.controller';
 
+import { TrainersModule } from './modules/trainers/trainers.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -15,9 +17,12 @@ import { AppController } from './app.controller';
     }),
 
     PrismaModule,
+
     AuthModule,
+
     MailModule,
-    TestModule,
+
+    TrainersModule,
   ],
   controllers: [AppController],
 })

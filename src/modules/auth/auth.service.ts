@@ -52,27 +52,81 @@ export class AuthService {
     });
 
     if (dto.role === 'TRAINER') {
-      await this.authRepository.createTrainer({
+      let specializationId: string | null = null;
+
+      if (dto.specialization_id) {
+        const specialization = await this.authRepository.findSpecializationById(
+          dto.specialization_id,
+        );
+
+        if (!specialization) {
+          throw new BadRequestException('Specialization not found');
+        }
+
+        specializationId = specialization.id;
+      } else if (dto.specialization_name_ar && dto.specialization_name_en) {
+        const specialization = await this.authRepository.createSpecialization({
+          name_ar: dto.specialization_name_ar,
+          name_en: dto.specialization_name_en,
+        });
+
+        specializationId = specialization.id;
+      }
+
+      const trainer = await this.authRepository.createTrainer({
         user_id: user.id,
+
         slug: dto.username + '-' + Math.floor(Math.random() * 100000),
+
         trainer_status: 'PENDING',
+
+        specialization_id: specializationId,
+
+        bio_ar: dto.bio_ar,
+        bio_en: dto.bio_en,
+
+        description_ar: dto.description_ar,
+        description_en: dto.description_en,
+
+        cover_letter: dto.cover_letter,
+
+        linkedin_url: dto.linkedin_url,
+        facebook_url: dto.facebook_url,
+        website_url: dto.website_url,
+        portfolio_url: dto.portfolio_url,
+
+        consultation_price_from: dto.consultation_price_from || 0,
+
+        consultation_price_to: dto.consultation_price_to || 0,
+
+        consultation_duration: dto.consultation_duration || 60,
       });
+
+      await this.authRepository.createTrainerCertificates(
+        trainer.id,
+        dto.certificate_urls || [],
+      );
+
+      await this.authRepository.createTrainerDocuments(
+        trainer.id,
+        dto.documents || [],
+      );
 
       const admin = await this.authRepository.findFirstAdmin();
 
       if (admin) {
-        // Email
         await this.mailService.sendTrainerRequestEmail(
           admin.email,
           dto.full_name,
           dto.email,
         );
 
-        // Notification
         await this.authRepository.createNotification({
           user_id: admin.id,
-          title: 'طلب مدرب جديد',
-          message: `${dto.full_name} قام بإرسال طلب تسجيل كمدرب`,
+
+          title: 'New Trainer Request',
+
+          message: `${dto.full_name} submitted a trainer application`,
         });
       }
     }
