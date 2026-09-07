@@ -363,4 +363,16 @@ export class TrainersRepository {
       ratings_count: trainer.ratings_count,
     };
   }
+
+  async updateUserProfileImage(userId: string, imageUrl: string) {
+    return this.prisma.users.update({
+      where: {
+        id: userId,
+      },
+
+      data: {
+        profile_image: imageUrl,
+      },
+    });
+  }
 }

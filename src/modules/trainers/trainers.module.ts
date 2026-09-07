@@ -6,8 +6,9 @@ import { TrainersRepository } from './trainers.repository';
 
 import { AuthModule } from '../auth/auth.module';
 
+import { StorageModule } from '../storage/storage.module';
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, StorageModule],
 
   controllers: [TrainersController],
 

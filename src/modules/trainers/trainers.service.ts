@@ -15,10 +15,15 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 
 import { CreateReviewDto } from './dto/create-review.dto';
+import  { StorageService } from '../storage/storage.service';
 
+import { Multer } from 'multer';
 @Injectable()
 export class TrainersService {
-  constructor(private readonly trainersRepository: TrainersRepository) {}
+  constructor(
+    private readonly trainersRepository: TrainersRepository,
+    private readonly storageService: StorageService,
+  ) {}
 
   async getMyProfile(userId: string) {
     return this.trainersRepository.getTrainerProfile(userId);
@@ -375,6 +380,28 @@ export class TrainersService {
     return {
       success: true,
       data: stats,
+    };
+  }
+
+  async uploadProfileImage(userId: string, file: Express.Multer.File) {
+    const trainer = await this.trainersRepository.getTrainerProfile(userId);
+
+    if (!trainer) {
+      throw new BadRequestException('Trainer not found');
+    }
+
+    const uploaded = await this.storageService.uploadFile(
+      'profile-images',
+      file.originalname,
+      file.buffer,
+      file.mimetype,
+    );
+
+    await this.trainersRepository.updateUserProfileImage(userId, uploaded.url);
+
+    return {
+      success: true,
+      image_url: uploaded.url,
     };
   }
 }

@@ -9,6 +9,8 @@ import {
   Req,
   UseGuards,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import { TrainersService } from './trainers.service';
@@ -27,6 +29,8 @@ import { UpdateAvailabilityDto } from './dto/update-availability.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 
 import { CreateReviewDto } from './dto/create-review.dto';
+
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('trainers')
 export class TrainersController {
@@ -150,5 +154,15 @@ export class TrainersController {
   @Get('dashboard')
   getDashboard(@CurrentUser() user: any) {
     return this.trainersService.getDashboardStats(user.sub);
+  }
+
+  @Post('upload-profile-image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('image'))
+  uploadProfileImage(
+    @CurrentUser() user: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.trainersService.uploadProfileImage(user.sub, file);
   }
 }
