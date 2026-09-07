@@ -21,7 +21,7 @@ export class StorageService {
     const path = `${folder}/${Date.now()}-${fileName}`;
 
     const { data, error } = await this.supabase.storage
-      .from('tamkeenova')
+      .from('profile-images')
       .upload(path, fileBuffer, {
         contentType,
         upsert: true,
@@ -32,7 +32,7 @@ export class StorageService {
     }
 
     const { data: publicUrl } = this.supabase.storage
-      .from('tamkeenova')
+      .from('profile-images')
       .getPublicUrl(path);
 
     return {
