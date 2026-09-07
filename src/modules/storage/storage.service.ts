@@ -28,7 +28,9 @@ export class StorageService {
       });
 
     if (error) {
-      throw error;
+      console.log('SUPABASE ERROR =>', error);
+
+      throw new Error(error.message);
     }
 
     const { data: publicUrl } = this.supabase.storage
