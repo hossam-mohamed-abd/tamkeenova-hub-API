@@ -375,4 +375,33 @@ export class TrainersRepository {
       },
     });
   }
+
+  getAllPrograms() {
+    return this.prisma.training_programs.findMany({
+      where: {
+        is_active: true,
+      },
+
+      orderBy: {
+        created_at: 'desc',
+      },
+
+      include: {
+        trainers: {
+          include: {
+            users: {
+              select: {
+                id: true,
+                full_name: true,
+                username: true,
+                profile_image: true,
+              },
+            },
+
+            specializations: true,
+          },
+        },
+      },
+    });
+  }
 }

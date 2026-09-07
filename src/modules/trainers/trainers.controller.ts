@@ -165,4 +165,9 @@ export class TrainersController {
   ) {
     return this.trainersService.uploadProfileImage(user.sub, file);
   }
+
+  @Get('/programs/all')
+  getAllPrograms() {
+    return this.trainersService.getAllPrograms();
+  }
 }

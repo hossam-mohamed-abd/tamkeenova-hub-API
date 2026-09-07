@@ -15,7 +15,7 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
 
 import { CreateReviewDto } from './dto/create-review.dto';
-import  { StorageService } from '../storage/storage.service';
+import { StorageService } from '../storage/storage.service';
 
 import { Multer } from 'multer';
 @Injectable()
@@ -402,6 +402,16 @@ export class TrainersService {
     return {
       success: true,
       image_url: uploaded.url,
+    };
+  }
+
+  async getAllPrograms() {
+    const programs = await this.trainersRepository.getAllPrograms();
+
+    return {
+      success: true,
+      count: programs.length,
+      data: programs,
     };
   }
 }
