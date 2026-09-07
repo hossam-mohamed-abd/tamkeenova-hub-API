@@ -195,4 +195,9 @@ export class TrainersController {
   getAllPrograms() {
     return this.trainersService.getAllPrograms();
   }
+
+  @Get('profile/:slug')
+  getPublicTrainerProfile(@Param('slug') slug: string) {
+    return this.trainersService.getPublicTrainerProfile(slug);
+  }
 }

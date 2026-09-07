@@ -444,4 +444,17 @@ export class TrainersService {
       data: trainers,
     };
   }
+
+  async getPublicTrainerProfile(slug: string) {
+    const trainer = await this.trainersRepository.getPublicTrainerProfile(slug);
+
+    if (!trainer) {
+      throw new BadRequestException('Trainer not found');
+    }
+
+    return {
+      success: true,
+      data: trainer,
+    };
+  }
 }

@@ -438,4 +438,62 @@ export class TrainersRepository {
       },
     });
   }
+
+  async getPublicTrainerProfile(slug: string) {
+    return this.prisma.trainers.findFirst({
+      where: {
+        slug,
+        trainer_status: 'APPROVED',
+      },
+
+      include: {
+        users: {
+          select: {
+            id: true,
+            full_name: true,
+            username: true,
+            profile_image: true,
+            created_at: true,
+          },
+        },
+
+        specializations: true,
+
+        trainer_certificates: true,
+
+        trainer_reviews: {
+          include: {
+            users: {
+              select: {
+                full_name: true,
+                profile_image: true,
+              },
+            },
+          },
+
+          orderBy: {
+            created_at: 'desc',
+          },
+        },
+
+        training_programs: {
+          where: {
+            is_active: true,
+          },
+
+          orderBy: {
+            created_at: 'desc',
+          },
+        },
+
+        _count: {
+          select: {
+            training_programs: true,
+            trainer_reviews: true,
+            trainer_bookings: true,
+          },
+        },
+      },
+    });
+  }
 }
