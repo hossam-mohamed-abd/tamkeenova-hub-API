@@ -21,16 +21,14 @@ export class StorageService {
     const path = `${folder}/${Date.now()}-${fileName}`;
 
     const { data, error } = await this.supabase.storage
-      .from('profile-images')
+      .from('tamkeenova')
       .upload(path, fileBuffer, {
         contentType,
         upsert: true,
       });
 
     if (error) {
-      console.log('SUPABASE ERROR =>', error);
-
-      throw new Error(error.message);
+      throw error;
     }
 
     const { data: publicUrl } = this.supabase.storage
