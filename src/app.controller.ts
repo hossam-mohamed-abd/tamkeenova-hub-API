@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
+  // -- Report API Availability --
   @Get()
   root() {
     return {
@@ -11,6 +12,7 @@ export class AppController {
     };
   }
 
+  // -- Report API Health Status --
   @Get('health')
   health() {
     return {

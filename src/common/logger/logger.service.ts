@@ -3,6 +3,7 @@ import * as winston from 'winston';
 
 import { AuthLogData, ErrorLogData, SecurityLogData } from './logger.types';
 
+// -- Route Structured Events to Dedicated Log Files --
 @Injectable()
 export class LoggerService {
   private authLogger: winston.Logger;
@@ -49,14 +50,17 @@ export class LoggerService {
     });
   }
 
+  // -- Record an Authentication Event --
   logAuth(data: AuthLogData) {
     this.authLogger.info(data);
   }
 
+  // -- Record a Security Event --
   logSecurity(data: SecurityLogData) {
     this.securityLogger.warn(data);
   }
 
+  // -- Record an Error with Its Stack Trace --
   logError(data: ErrorLogData) {
     this.errorLogger.error({
       ...data,

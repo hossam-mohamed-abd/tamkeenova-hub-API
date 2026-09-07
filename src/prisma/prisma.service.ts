@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
+// -- Manage the Application Database Connection --
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -8,6 +9,7 @@ export class PrismaService
 {
   private readonly logger = new Logger(PrismaService.name);
 
+  // -- Connect to the Database with Incremental Retry Delays --
   async onModuleInit() {
     const maxRetries = 5;
 
@@ -31,6 +33,7 @@ export class PrismaService
     }
   }
 
+  // -- Close the Database Connection During Shutdown --
   async onModuleDestroy() {
     await this.$disconnect();
   }

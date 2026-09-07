@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { createClient } from '@supabase/supabase-js';
 
+// -- Manage File Storage Operations --
 @Injectable()
 export class StorageService {
   private supabase;
@@ -12,6 +13,7 @@ export class StorageService {
     );
   }
 
+  // -- Upload a File and Return Its Public Location --
   async uploadFile(
     folder: string,
     fileName: string,

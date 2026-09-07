@@ -15,22 +15,26 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
 import { RequestSpecializationDto } from './dto/request-specialization.dto';
 
+// -- Expose Specialization API Endpoints --
 @Controller('specializations')
 export class SpecializationsController {
   constructor(
     private readonly specializationsService: SpecializationsService,
   ) {}
 
+  // -- Retrieve Available Specializations --
   @Get()
   getAll() {
     return this.specializationsService.getAll();
   }
 
+  // -- Retrieve a Specialization by Identifier --
   @Get(':id')
   getById(@Param('id') id: string) {
     return this.specializationsService.getById(id);
   }
 
+  // -- Submit a Specialization Request --
   @Post('request')
   @UseGuards(JwtAuthGuard)
   requestSpecialization(

@@ -36,6 +36,7 @@ const BASE = {
   gold: '#BE8A3F',
 };
 
+// -- Build Email Hero Section --
 function heroSection(
   variant: Variant,
   eyebrow: string,
@@ -47,7 +48,6 @@ function heroSection(
           <tr>
             <td align="center" bgcolor="${p.dark}" style="background: linear-gradient(135deg, ${p.dark} 0%, ${p.deep} 100%); padding: 44px 32px 40px;">
 
-              <!-- Logo badge -->
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom: 22px;">
                 <tr>
                   <td align="center" bgcolor="#FFFFFF" style="width:92px; height:92px; border-radius:50%; background-color:#FFFFFF; box-shadow: 0 0 0 6px ${p.glowSoft}, 0 0 34px 6px ${p.glowSoft};">
@@ -62,17 +62,14 @@ function heroSection(
                 </tr>
               </table>
 
-              <!-- Eyebrow -->
               <p style="margin:0 0 10px; color:${p.glow}; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">
                 ${eyebrow}
               </p>
 
-              <!-- Title -->
               <h1 style="margin:0 0 12px; color:#FFFFFF; font-size:24px; font-weight:800; line-height:1.4;">
                 ${title}
               </h1>
 
-              <!-- Subtitle -->
               <p style="margin:0; color:rgba(255,255,255,0.75); font-size:14px; line-height:1.9; max-width:340px; display:inline-block;">
                 ${subtitle}
               </p>
@@ -80,6 +77,7 @@ function heroSection(
           </tr>`;
 }
 
+// -- Wrap Email Content in the Shared Layout --
 function wrapEmail(
   variant: Variant,
   heroHtml: string,
@@ -114,7 +112,6 @@ function wrapEmail(
 
           ${bodyContent}
 
-          <!-- Footer -->
           <tr>
             <td style="padding: 8px 24px 32px;">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${BASE.border}; padding-top:20px;">
@@ -138,9 +135,7 @@ function wrapEmail(
 `;
 }
 
-// ============================================
-// OTP
-// ============================================
+// -- Create One-Time Password Email Template --
 export function getOtpEmailTemplate(otp: string): string {
   const p = PALETTE.primary;
 
@@ -184,9 +179,7 @@ export function getOtpEmailTemplate(otp: string): string {
   return wrapEmail('primary', hero, body);
 }
 
-// ============================================
-// Trainer Request (Admin)
-// ============================================
+// -- Create Trainer Application Notification Email --
 export function getTrainerRequestEmailTemplate(
   trainerName: string,
   trainerEmail: string,
@@ -229,9 +222,7 @@ export function getTrainerRequestEmailTemplate(
   return wrapEmail('primary', hero, body);
 }
 
-// ============================================
-// Trainer Approved
-// ============================================
+// -- Create Trainer Approval Email --
 export function getTrainerApprovedEmailTemplate(trainerName?: string): string {
   const hero = heroSection(
     'success',
@@ -254,9 +245,7 @@ export function getTrainerApprovedEmailTemplate(trainerName?: string): string {
   return wrapEmail('success', hero, body);
 }
 
-// ============================================
-// Trainer Rejected
-// ============================================
+// -- Create Trainer Rejection Email --
 export function getTrainerRejectedEmailTemplate(reason: string): string {
   const hero = heroSection(
     'danger',

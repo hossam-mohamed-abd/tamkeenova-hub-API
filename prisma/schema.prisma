@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model email_otps {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String   @db.Uuid
@@ -20,7 +19,6 @@ model email_otps {
   @@index([user_id], map: "idx_email_otps_user_id")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model notifications {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String    @db.Uuid
@@ -31,7 +29,6 @@ model notifications {
   users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_notification_user")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model specializations {
   id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name_ar    String     @db.VarChar(255)
@@ -43,8 +40,6 @@ model specializations {
   @@index([name_en], map: "idx_specializations_name_en")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model trainer_availability {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   trainer_id  String    @db.Uuid
@@ -56,7 +51,6 @@ model trainer_availability {
   trainers    trainers  @relation(fields: [trainer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_availability_trainer")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model trainer_bookings {
   id                       String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   trainer_id               String         @db.Uuid
@@ -76,8 +70,6 @@ model trainer_bookings {
   trainers                 trainers       @relation(fields: [trainer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_booking_trainer")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model trainer_reviews {
   id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   trainer_id String    @db.Uuid
@@ -91,8 +83,6 @@ model trainer_reviews {
   @@unique([trainer_id, student_id], map: "unique_trainer_student_review")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model trainers {
   id                                String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id                           String                 @unique @db.Uuid
@@ -139,7 +129,6 @@ model trainers {
   @@index([user_id], map: "idx_trainers_user_id")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model users {
   id                                   String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   full_name                            String                    @db.VarChar(255)

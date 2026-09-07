@@ -18,6 +18,7 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { StorageService } from '../storage/storage.service';
 
 import { Multer } from 'multer';
+// -- Coordinate Trainer Profile, Program, and Booking Workflows --
 @Injectable()
 export class TrainersService {
   constructor(
@@ -25,10 +26,12 @@ export class TrainersService {
     private readonly storageService: StorageService,
   ) {}
 
+  // -- Retrieve the Authenticated Trainer Profile --
   async getMyProfile(userId: string) {
     return this.trainersRepository.getTrainerProfile(userId);
   }
 
+  // -- Update the Authenticated Trainer Profile and Related Records --
   async updateMyProfile(userId: string, dto: UpdateTrainerProfileDto) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -81,6 +84,7 @@ export class TrainersService {
     };
   }
 
+  // -- Create a Training Program for the Authenticated Trainer --
   async createProgram(userId: string, dto: CreateProgramDto) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -116,6 +120,7 @@ export class TrainersService {
     });
   }
 
+  // -- Retrieve Programs Owned by the Authenticated Trainer --
   async getMyPrograms(userId: string) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -126,6 +131,7 @@ export class TrainersService {
     return this.trainersRepository.getProgramsByTrainer(trainer.id);
   }
 
+  // -- Update a Program Owned by the Authenticated Trainer --
   async updateProgram(
     userId: string,
     programId: string,
@@ -150,6 +156,7 @@ export class TrainersService {
     return this.trainersRepository.updateProgram(programId, dto);
   }
 
+  // -- Delete a Program Owned by the Authenticated Trainer --
   async deleteProgram(userId: string, programId: string) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -175,6 +182,7 @@ export class TrainersService {
     };
   }
 
+  // -- Retrieve the Authenticated Trainer Application Status --
   async getApplicationStatus(userId: string) {
     const trainer = await this.trainersRepository.getTrainerStatus(userId);
 
@@ -195,6 +203,7 @@ export class TrainersService {
     };
   }
 
+  // -- Create an Availability Slot for the Authenticated Trainer --
   async createAvailability(userId: string, dto: CreateAvailabilityDto) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -213,6 +222,7 @@ export class TrainersService {
     });
   }
 
+  // -- Retrieve Availability Slots for the Authenticated Trainer --
   async getAvailability(userId: string) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -223,6 +233,7 @@ export class TrainersService {
     return this.trainersRepository.getTrainerAvailability(trainer.id);
   }
 
+  // -- Update an Availability Slot Owned by the Authenticated Trainer --
   async updateAvailability(
     userId: string,
     availabilityId: string,
@@ -260,6 +271,7 @@ export class TrainersService {
     });
   }
 
+  // -- Delete an Availability Slot Owned by the Authenticated Trainer --
   async deleteAvailability(userId: string, availabilityId: string) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -286,6 +298,7 @@ export class TrainersService {
     };
   }
 
+  // -- Retrieve Bookings Assigned to the Authenticated Trainer --
   async getBookings(userId: string) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -296,6 +309,7 @@ export class TrainersService {
     return this.trainersRepository.getTrainerBookings(trainer.id);
   }
 
+  // -- Retrieve an Authorized Booking by Identifier --
   async getBookingDetails(userId: string, bookingId: string) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -316,6 +330,7 @@ export class TrainersService {
     return booking;
   }
 
+  // -- Update the Status of an Authorized Booking --
   async updateBookingStatus(
     userId: string,
     bookingId: string,
@@ -344,6 +359,7 @@ export class TrainersService {
     });
   }
 
+  // -- Create a Trainer Review and Refresh Its Rating --
   async createReview(userId: string, trainerId: string, dto: CreateReviewDto) {
     const trainer = await this.trainersRepository.findTrainerById(trainerId);
 
@@ -366,10 +382,12 @@ export class TrainersService {
     };
   }
 
+  // -- Retrieve Reviews for a Trainer --
   async getTrainerReviews(trainerId: string) {
     return this.trainersRepository.getTrainerReviews(trainerId);
   }
 
+  // -- Retrieve Dashboard Metrics for the Authenticated Trainer --
   async getDashboardStats(userId: string) {
     const stats = await this.trainersRepository.getDashboardStats(userId);
 
@@ -383,6 +401,7 @@ export class TrainersService {
     };
   }
 
+  // -- Upload and Store the Authenticated Trainer Profile Image --
   async uploadProfileImage(userId: string, file: Express.Multer.File) {
     const trainer = await this.trainersRepository.getTrainerProfile(userId);
 
@@ -405,6 +424,7 @@ export class TrainersService {
     };
   }
 
+  // -- Retrieve All Active Training Programs --
   async getAllPrograms() {
     const programs = await this.trainersRepository.getAllPrograms();
 
@@ -412,6 +432,16 @@ export class TrainersService {
       success: true,
       count: programs.length,
       data: programs,
+    };
+  }
+
+  async getAllPublicTrainers() {
+    const trainers = await this.trainersRepository.getAllPublicTrainers();
+
+    return {
+      success: true,
+      count: trainers.length,
+      data: trainers,
     };
   }
 }

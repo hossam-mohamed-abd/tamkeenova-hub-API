@@ -8,6 +8,7 @@ import {
   getTrainerRejectedEmailTemplate,
 } from './templates/mail-templates';
 
+// -- Deliver Transactional Email Notifications --
 @Injectable()
 export class MailService {
   private transporter;
@@ -22,6 +23,7 @@ export class MailService {
     });
   }
 
+  // -- Send a Fully Rendered Email Message --
   private async sendEmail(
     to: string,
     subject: string,
@@ -37,6 +39,7 @@ export class MailService {
     });
   }
 
+  // -- Send an Email Verification OTP --
   async sendOtp(email: string, otp: string) {
     await this.sendEmail(
       email,
@@ -46,6 +49,7 @@ export class MailService {
     );
   }
 
+  // -- Notify an Administrator of a Trainer Application --
   async sendTrainerRequestEmail(
     adminEmail: string,
     trainerName: string,
@@ -58,6 +62,7 @@ export class MailService {
     );
   }
 
+  // -- Notify a Trainer That Their Application Was Approved --
   async sendTrainerApprovedEmail(email: string, trainerName?: string) {
     await this.sendEmail(
       email,
@@ -66,6 +71,7 @@ export class MailService {
     );
   }
 
+  // -- Notify a Trainer That Their Application Was Rejected --
   async sendTrainerRejectedEmail(email: string, reason: string) {
     await this.sendEmail(
       email,

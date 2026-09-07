@@ -404,4 +404,38 @@ export class TrainersRepository {
       },
     });
   }
+
+  async getAllPublicTrainers() {
+    return this.prisma.trainers.findMany({
+      where: {
+        trainer_status: 'APPROVED',
+      },
+
+      orderBy: {
+        average_rating: 'desc',
+      },
+
+      include: {
+        users: {
+          select: {
+            id: true,
+            full_name: true,
+            username: true,
+            profile_image: true,
+          },
+        },
+
+        specializations: true,
+
+        trainer_certificates: true,
+
+        _count: {
+          select: {
+            training_programs: true,
+            trainer_reviews: true,
+          },
+        },
+      },
+    });
+  }
 }

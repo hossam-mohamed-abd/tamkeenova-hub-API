@@ -1,10 +1,9 @@
-// src/modules/test/test.controller.ts
-
 import { Controller, Get } from '@nestjs/common';
 import { createClient } from '@supabase/supabase-js';
 
 @Controller('test')
 export class TestController {
+  // -- Verify Storage Upload Configuration --
   @Get('upload')
   async uploadTest() {
     const supabase = createClient(

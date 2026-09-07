@@ -11,6 +11,7 @@ import { MailService } from '../mail/mail.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 
+// -- Coordinate User Registration, Verification, and Authentication --
 @Injectable()
 export class AuthService {
   constructor(
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
+  // -- Register a User and Start Email Verification --
   async register(dto: RegisterDto) {
     const emailExists = await this.authRepository.findUserByEmail(dto.email);
 
@@ -152,6 +154,7 @@ export class AuthService {
     };
   }
 
+  // -- Verify a User Email Address with an OTP --
   async verifyEmail(dto: VerifyEmailDto) {
     const otpRecord = await this.authRepository.getValidOtp(dto.email, dto.otp);
 
@@ -173,6 +176,7 @@ export class AuthService {
     };
   }
 
+  // -- Replace an Expired or Unused Email Verification OTP --
   async resendOtp(dto: { email: string }) {
     const user = await this.authRepository.findUserByEmail(dto.email);
 
@@ -202,6 +206,7 @@ export class AuthService {
     };
   }
 
+  // -- Authenticate a Verified Active User --
   async login(dto: LoginDto) {
     const user = await this.authRepository.findUserForLogin(dto.email);
 
