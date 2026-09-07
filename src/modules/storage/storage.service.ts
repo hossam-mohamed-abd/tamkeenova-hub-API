@@ -32,7 +32,7 @@ export class StorageService {
     }
 
     const { data: publicUrl } = this.supabase.storage
-      .from('profile-images')
+      .from('tamkeenova')
       .getPublicUrl(path);
 
     return {
