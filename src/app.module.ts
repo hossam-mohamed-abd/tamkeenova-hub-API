@@ -11,6 +11,15 @@ import { AppController } from './app.controller';
 import { TrainersModule } from './modules/trainers/trainers.module';
 
 import { SpecializationsModule } from './modules/specializations/specializations.module';
+
+import { StudentsModule } from './modules/students/students.module';
+
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { ConsultationsModule } from './modules/consultations/consultations.module';
+import { CorporateRequestsModule } from './modules/corporate-requests/corporate-requests.module';
+
+import { VerificationModule } from './modules/verification/verification.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -25,7 +34,14 @@ import { SpecializationsModule } from './modules/specializations/specializations
 
     TrainersModule,
     SpecializationsModule,
+
+    StudentsModule,
+    NotificationsModule,
+    ConsultationsModule,
+    CorporateRequestsModule,
+    VerificationModule,
+
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule { }

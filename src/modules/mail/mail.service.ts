@@ -79,4 +79,65 @@ export class MailService {
       getTrainerRejectedEmailTemplate(reason),
     );
   }
+
+  // -- Send Consultation Request Email to Trainer --
+  async sendConsultationRequestEmail(
+    trainerEmail: string,
+    studentName: string,
+    studentEmail: string,
+    studentPhone: string,
+    consultationTitle: string,
+    consultationDescription: string,
+    preferredDate?: string,
+    preferredTime?: string,
+    certificates?: string[],
+    whatsapp?: string,
+    bio?: string,
+  ) {
+    const certsHtml =
+      certificates && certificates.length > 0
+        ? `<h4>الشهادات:</h4><ul>${certificates.map((c) => `<li>${c}</li>`).join('')}</ul>`
+        : '';
+
+    await this.sendEmail(
+      trainerEmail,
+      `طلب استشارة جديد: ${consultationTitle} — TamkeeNova HUB`,
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #1a73e8;">تم استلام طلب استشارة جديد</h2>
+        <hr/>
+        <h3>تفاصيل الاستشارة:</h3>
+        <p><strong>العنوان:</strong> ${consultationTitle}</p>
+        <p><strong>الوصف:</strong> ${consultationDescription}</p>
+        ${preferredDate ? `<p><strong>التاريخ المفضل:</strong> ${preferredDate}</p>` : ''}
+        ${preferredTime ? `<p><strong>الوقت المفضل:</strong> ${preferredTime}</p>` : ''}
+        <hr/>
+        <h3>بيانات الطالب:</h3>
+        <p><strong>الاسم:</strong> ${studentName}</p>
+        <p><strong>الإيميل:</strong> ${studentEmail}</p>
+        <p><strong>الهاتف:</strong> ${studentPhone || 'غير متوفر'}</p>
+        ${whatsapp ? `<p><strong>واتساب:</strong> ${whatsapp}</p>` : ''}
+        ${bio ? `<p><strong>البايو:</strong> ${bio}</p>` : ''}
+        ${certsHtml}
+      </div>`,
+    );
+  }
+
+  // -- Send Corporate Request Notification to Admin --
+  async sendCorporateRequestAdminEmail(
+    adminEmail: string,
+    companyName: string,
+    serviceType: string,
+  ) {
+    await this.sendEmail(
+      adminEmail,
+      `طلب شركة جديد: ${companyName} — TamkeeNova HUB`,
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #1a73e8;">تم استلام طلب شركة جديد</h2>
+        <hr/>
+        <p><strong>الشركة:</strong> ${companyName}</p>
+        <p><strong>نوع الخدمة:</strong> ${serviceType}</p>
+        <p>يرجى مراجعة الطلب في لوحة التحكم.</p>
+      </div>`,
+    );
+  }
 }
