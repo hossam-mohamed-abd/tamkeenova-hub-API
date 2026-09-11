@@ -31,17 +31,21 @@ export class VerificationService {
           username: certificate.users.username,
           image: certificate.users.profile_image,
         },
-        program: {
-          title: certificate.training_programs.title,
-          duration_hours: certificate.training_programs.duration_hours,
-          level: certificate.training_programs.level,
-        },
-        trainer: {
-          name: certificate.trainers.users.full_name,
-          image: certificate.trainers.users.profile_image,
-          slug: certificate.trainers.slug,
-          specialization: certificate.trainers.specializations,
-        },
+        program: certificate.training_programs
+          ? {
+              title: certificate.training_programs.title,
+              duration_hours: certificate.training_programs.duration_hours,
+              level: certificate.training_programs.level,
+            }
+          : null,
+        trainer: certificate.trainers
+          ? {
+              name: certificate.trainers.users.full_name,
+              image: certificate.trainers.users.profile_image,
+              slug: certificate.trainers.slug,
+              specialization: certificate.trainers.specializations,
+            }
+          : null,
       },
       verified_at: new Date().toISOString(),
     };

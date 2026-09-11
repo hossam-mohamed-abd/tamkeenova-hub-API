@@ -403,6 +403,10 @@ export class TasksService {
       });
     }
 
+    if (!submission) {
+      throw new BadRequestException('Failed to save task submission');
+    }
+
     // Upload attachments
     if (files && files.length > 0) {
       for (const file of files) {

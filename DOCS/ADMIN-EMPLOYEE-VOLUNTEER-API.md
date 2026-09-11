@@ -216,7 +216,7 @@ POST /api/admin/certificates
 
 **Side Effects:**
 - توليد `verification_code` (مثل `TAM-1A2B3C4D`).
-- توليد QR code ورفعه على Supabase وتخزين رابطه في `qr_code_url`.
+- توليد رابط صورة QR (بدون أي مكتبة server-side) يرمّز رابط التحقق العام وتخزينه في `qr_code_url`.
 - 🔔 إشعار + ✉️ إيميل لصاحب الشهادة.
 
 > `trainer_id` و `program_id` اختياريين دلوقتي — شهادة التطوع أو أي شهادة عامة مش محتاجة برنامج أو مدرب.

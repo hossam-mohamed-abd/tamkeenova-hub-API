@@ -182,6 +182,7 @@ export class TasksRepository {
         content: data.content || null,
         link_url: data.link_url || null,
       },
+      include: { task_submission_attachments: true },
     });
   }
 
@@ -189,6 +190,7 @@ export class TasksRepository {
     return this.prisma.task_submissions.update({
       where: { id },
       data: { ...data, updated_at: new Date() },
+      include: { task_submission_attachments: true },
     });
   }
 

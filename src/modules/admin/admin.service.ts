@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
-import * as QRCode from 'qrcode';
 
 import { AdminRepository } from './admin.repository';
 import { MailService } from '../mail/mail.service';
@@ -439,7 +438,7 @@ export class AdminService {
     if (!holder) throw new NotFoundException('User not found');
 
     const verificationCode = this.generateVerificationCode();
-    const qrCodeUrl = await this.generateQrCode(verificationCode);
+    const qrCodeUrl = this.generateQrCode(verificationCode);
 
     const certificate = await this.adminRepo.createCertificate({
       student_id: dto.user_id,
@@ -834,23 +833,14 @@ export class AdminService {
     return `TAM-${code}`;
   }
 
-  private async generateQrCode(verificationCode: string): Promise<string> {
+  private generateQrCode(verificationCode: string): string {
     const frontendUrl =
       process.env.FRONTEND_URL || 'https://tamkeenova-hub.vercel.app';
     const verifyUrl = `${frontendUrl}/verify/${verificationCode}`;
 
-    try {
-      const buffer = await QRCode.toBuffer(verifyUrl, { type: 'png' });
-      const result = await this.storageService.uploadFile(
-        'certificates-qr',
-        `${verificationCode}.png`,
-        buffer,
-        'image/png',
-      );
-      return result.url;
-    } catch (e) {
-      console.error('Failed to generate QR code', e);
-      return verifyUrl;
-    }
+    // Generate the QR image via a public QR service — no server-side
+    // dependency needed. The QR encodes the public certificate
+    // verification link.
+    return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(verifyUrl)}`;
   }
 }
