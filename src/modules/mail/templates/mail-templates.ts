@@ -1,4 +1,5 @@
 const LOGO_URL = 'https://tamkeenova-hub.vercel.app/images/logo.svg';
+const APP_URL = 'https://tamkeenova-hub.vercel.app';
 
 type Variant = 'primary' | 'success' | 'danger';
 
@@ -34,7 +35,115 @@ const BASE = {
   text: '#101E27',
   textMuted: '#5B6B74',
   gold: '#BE8A3F',
+  goldLight: '#D9AE6F',
 };
+
+// ==================== HELPERS ====================
+
+// -- Escape User-Supplied Text to Keep the Email Markup Safe --
+function esc(value: string): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// -- Invisible Vertical Spacer (email-safe) --
+function spacer(height = 14): string {
+  return `<div style="height:${height}px; line-height:${height}px; font-size:1px;">&nbsp;</div>`;
+}
+
+// -- Section Title With a Gold Accent Bar --
+function sectionTitle(text: string): string {
+  return `<p style="margin:0 0 12px; color:${BASE.text}; font-size:14.5px; font-weight:800;">
+    <span style="display:inline-block; vertical-align:middle; width:16px; height:4px; border-radius:2px; background-color:${BASE.gold}; margin:0 0 2px 8px;"></span>${esc(text)}
+  </p>`;
+}
+
+// -- A Row Inside an Info Card --
+type Row = {
+  label: string;
+  value: string;
+  ltr?: boolean;
+  raw?: boolean;
+};
+
+function infoCard(rows: Row[], accent?: Variant): string {
+  const accentColor = accent ? PALETTE[accent].dark : BASE.gold;
+  const rowsHtml = rows
+    .map(
+      (r, i) => `
+                <tr>
+                  <td style="padding:15px 20px; ${i > 0 ? `border-top:1px solid ${BASE.border};` : ''}">
+                    <p style="margin:0 0 4px; color:${BASE.textMuted}; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;">${esc(r.label)}</p>
+                    <p style="margin:0; color:${BASE.text}; font-size:15px; font-weight:600; line-height:1.75; ${r.ltr ? 'direction:ltr; text-align:right;' : ''}">${r.raw ? r.value : esc(r.value)}</p>
+                  </td>
+                </tr>`,
+    )
+    .join('');
+
+  return `
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${BASE.surfaceAlt}; border:1px solid ${BASE.border}; border-radius:14px; border-inline-start:4px solid ${accentColor}; overflow:hidden;">
+                ${rowsHtml}
+              </table>`;
+}
+
+// -- Highlighted Quote / Description Block --
+function quote(text: string): string {
+  return `
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${BASE.surface}; border:1.5px dashed ${BASE.border}; border-radius:12px;">
+                <tr>
+                  <td style="padding:14px 18px; color:${BASE.textMuted}; font-size:13.5px; line-height:1.9;">${esc(text)}</td>
+                </tr>
+              </table>`;
+}
+
+// -- Rounded Call-To-Action Button (gold gradient) --
+function ctaButton(text: string, url: string): string {
+  return `
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td align="center" style="background:linear-gradient(135deg, ${BASE.goldLight} 0%, ${BASE.gold} 100%); border-radius:999px; box-shadow:0 8px 18px rgba(190,138,63,0.35);">
+                    <a href="${url}" target="_blank" style="display:inline-block; padding:13px 36px; color:#012636; font-size:14px; font-weight:800; text-decoration:none; border-radius:999px;">${esc(text)}</a>
+                  </td>
+                </tr>
+              </table>`;
+}
+
+// -- Muted Note / Disclaimer Line --
+function note(text: string): string {
+  return `<p style="margin:18px 0 0; color:${BASE.textMuted}; font-size:12.5px; line-height:1.9; text-align:center;">${esc(text)}</p>`;
+}
+
+// -- Rounded Chips (used for certificate lists) --
+function chips(items: string[]): string {
+  return items
+    .map(
+      (c) => `<span style="display:inline-block; background-color:${BASE.surface}; border:1px solid ${BASE.border}; border-radius:999px; padding:6px 14px; margin:0 0 8px 6px; color:${BASE.text}; font-size:12.5px; font-weight:600;">${esc(c)}</span>`,
+    )
+    .join('');
+}
+
+// -- Priority Badge --
+const PRIORITY_META: Record<
+  string,
+  { label: string; bg: string; fg: string }
+> = {
+  LOW: { label: 'منخفضة', bg: '#E7F1EC', fg: '#1F5C43' },
+  MEDIUM: { label: 'متوسطة', bg: '#E8F0FA', fg: '#1D4E89' },
+  HIGH: { label: 'عالية', bg: '#FCF0E3', fg: '#9A5B12' },
+  URGENT: { label: 'عاجلة', bg: '#FBEAE8', fg: '#7A2E27' },
+};
+
+function priorityBadge(priority?: string): string {
+  const key = (priority || 'MEDIUM').toUpperCase();
+  const meta = PRIORITY_META[key] || PRIORITY_META.MEDIUM;
+  return `<span style="display:inline-block; padding:4px 16px; border-radius:999px; background-color:${meta.bg}; color:${meta.fg}; font-size:12.5px; font-weight:800;">${meta.label}</span>`;
+}
+
+// ==================== LAYOUT ====================
 
 // -- Build Email Hero Section --
 function heroSection(
@@ -63,15 +172,15 @@ function heroSection(
               </table>
 
               <p style="margin:0 0 10px; color:${p.glow}; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">
-                ${eyebrow}
+                ${esc(eyebrow)}
               </p>
 
               <h1 style="margin:0 0 12px; color:#FFFFFF; font-size:24px; font-weight:800; line-height:1.4;">
-                ${title}
+                ${esc(title)}
               </h1>
 
               <p style="margin:0; color:rgba(255,255,255,0.75); font-size:14px; line-height:1.9; max-width:340px; display:inline-block;">
-                ${subtitle}
+                ${esc(subtitle)}
               </p>
             </td>
           </tr>`;
@@ -113,10 +222,15 @@ function wrapEmail(
           ${bodyContent}
 
           <tr>
-            <td style="padding: 8px 24px 32px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${BASE.border}; padding-top:20px;">
+            <td style="padding: 8px 24px 30px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${BASE.border};">
                 <tr>
-                  <td align="center" style="padding-top:20px; color:${BASE.textMuted}; font-size:11px; line-height:1.9; letter-spacing:0.3px;">
+                  <td align="center" style="padding-top:24px;">
+                    <img src="${LOGO_URL}" alt="TamkeeNova" width="38" style="width:38px; height:auto; margin:0 auto; opacity:0.9;" />
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top:12px; color:${BASE.textMuted}; font-size:11px; line-height:1.9; letter-spacing:0.3px;">
                     منصة تمكينوفا هب لتدريب وتأهيل الكوادر البشرية والحلول المؤسسية في صعيد مصر
                     <br />
                     جميع الحقوق محفوظة &copy; ${new Date().getFullYear()} TamkeeNova HUB
@@ -135,7 +249,9 @@ function wrapEmail(
 `;
 }
 
-// -- Create One-Time Password Email Template --
+// ==================== TEMPLATES ====================
+
+// -- One-Time Password --
 export function getOtpEmailTemplate(otp: string): string {
   const p = PALETTE.primary;
 
@@ -153,7 +269,7 @@ export function getOtpEmailTemplate(otp: string): string {
                 <tr>
                   <td align="center" style="padding: 26px 16px;">
                     <span class="otp-digits" style="display:inline-block; font-size:38px; font-weight:800; letter-spacing:14px; color:${p.dark}; direction:ltr; font-family:'Courier New', monospace; text-shadow: 0 0 18px ${BASE.gold}55;">
-                      ${otp}
+                      ${esc(otp)}
                     </span>
                   </td>
                 </tr>
@@ -179,7 +295,7 @@ export function getOtpEmailTemplate(otp: string): string {
   return wrapEmail('primary', hero, body);
 }
 
-// -- Create Trainer Application Notification Email --
+// -- Trainer Application Notification (Admin) --
 export function getTrainerRequestEmailTemplate(
   trainerName: string,
   trainerEmail: string,
@@ -193,36 +309,31 @@ export function getTrainerRequestEmailTemplate(
 
   const body = `
           <tr>
-            <td class="email-padding" style="padding: 30px 40px 8px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${BASE.surfaceAlt}; border-radius:14px;">
-                <tr>
-                  <td style="padding:18px 20px; border-bottom:1px solid ${BASE.border};">
-                    <p style="margin:0 0 4px; color:${BASE.textMuted}; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">الاسم</p>
-                    <p style="margin:0; color:${BASE.text}; font-size:15px; font-weight:700;">${trainerName}</p>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:18px 20px;">
-                    <p style="margin:0 0 4px; color:${BASE.textMuted}; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">البريد الإلكتروني</p>
-                    <p style="margin:0; color:${BASE.text}; font-size:15px; font-weight:700; direction:ltr; text-align:right;">${trainerEmail}</p>
-                  </td>
-                </tr>
-              </table>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('بيانات المدرب')}
+              ${infoCard(
+                [
+                  { label: 'الاسم', value: trainerName },
+                  { label: 'البريد الإلكتروني', value: trainerEmail, ltr: true },
+                ],
+                'primary',
+              )}
             </td>
           </tr>
 
           <tr>
-            <td align="center" style="padding: 26px 40px 34px;">
-              <p style="margin:0; color:${BASE.textMuted}; font-size:12.5px; line-height:1.8;">
-                راجع الطلب واعتمده من لوحة تحكم المدربين
-              </p>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${ctaButton('مراجعة الطلب', `${APP_URL}/admin/trainers`)}
+              ${note('راجع الطلب واعتمده أو ارفضه من لوحة تحكم المدربين')}
             </td>
-          </tr>`;
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
 
   return wrapEmail('primary', hero, body);
 }
 
-// -- Create Trainer Approval Email --
+// -- Trainer Approval --
 export function getTrainerApprovedEmailTemplate(trainerName?: string): string {
   const hero = heroSection(
     'success',
@@ -235,17 +346,20 @@ export function getTrainerApprovedEmailTemplate(trainerName?: string): string {
 
   const body = `
           <tr>
-            <td align="center" style="padding: 30px 40px 34px;">
-              <p style="margin:0; color:${BASE.textMuted}; font-size:13.5px; line-height:1.9;">
-                تقدر دلوقتي تسجّل دخولك وتبدأ تستقبل طلبات الحجز من المتدربين على المنصة.
+            <td align="center" class="email-padding" style="padding: 30px 40px 0;">
+              <p style="margin:0 0 22px; color:${BASE.textMuted}; font-size:13.5px; line-height:1.9;">
+                تقدر دلوقتي تسجّل دخولك وتبدأ تستقبل طلبات الحجز والاستشارات من المتدربين على المنصة.
               </p>
+              ${ctaButton('تسجيل الدخول', `${APP_URL}/login`)}
             </td>
-          </tr>`;
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
 
   return wrapEmail('success', hero, body);
 }
 
-// -- Create Trainer Rejection Email --
+// -- Trainer Rejection --
 export function getTrainerRejectedEmailTemplate(reason: string): string {
   const hero = heroSection(
     'danger',
@@ -256,25 +370,376 @@ export function getTrainerRejectedEmailTemplate(reason: string): string {
 
   const body = `
           <tr>
-            <td class="email-padding" style="padding: 30px 40px 8px;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${BASE.surfaceAlt}; border-radius:14px; border-inline-start: 4px solid ${PALETTE.danger.dark};">
-                <tr>
-                  <td style="padding:18px 20px;">
-                    <p style="margin:0 0 6px; color:${BASE.textMuted}; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:1px;">السبب</p>
-                    <p style="margin:0; color:${BASE.text}; font-size:14px; line-height:1.8;">${reason}</p>
-                  </td>
-                </tr>
-              </table>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('سبب الرفض')}
+              ${infoCard([{ label: 'السبب', value: reason }], 'danger')}
             </td>
           </tr>
 
           <tr>
-            <td align="center" style="padding: 26px 40px 34px;">
-              <p style="margin:0; color:${BASE.textMuted}; font-size:12.5px; line-height:1.8;">
-                لو حابب تستفسر أو تعدّل بياناتك، تواصل معانا وهنساعدك.
-              </p>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${note('لو حابب تستفسر أو تعدّل بياناتك، تواصل معانا وهنساعدك')}
             </td>
-          </tr>`;
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
 
   return wrapEmail('danger', hero, body);
+}
+
+// -- Consultation Request (Trainer) --
+export function getConsultationRequestEmailTemplate(args: {
+  studentName: string;
+  studentEmail: string;
+  studentPhone?: string;
+  whatsapp?: string;
+  bio?: string;
+  consultationTitle: string;
+  consultationDescription: string;
+  preferredDate?: string;
+  preferredTime?: string;
+  certificates?: string[];
+}): string {
+  const hero = heroSection(
+    'primary',
+    'TAMKEENOVA HUB',
+    'طلب استشارة جديد',
+    'وصل طلب استشارة جديد من أحد المتدربين على المنصة',
+  );
+
+  const consultRows: Row[] = [
+    { label: 'عنوان الاستشارة', value: args.consultationTitle },
+  ];
+  if (args.preferredDate) {
+    consultRows.push({ label: 'التاريخ المفضل', value: args.preferredDate });
+  }
+  if (args.preferredTime) {
+    consultRows.push({ label: 'الوقت المفضل', value: args.preferredTime });
+  }
+
+  const studentRows: Row[] = [
+    { label: 'الاسم', value: args.studentName },
+    { label: 'البريد الإلكتروني', value: args.studentEmail, ltr: true },
+    {
+      label: 'الهاتف',
+      value: args.studentPhone || 'غير متوفر',
+      ltr: !!args.studentPhone,
+    },
+  ];
+  if (args.whatsapp) {
+    studentRows.push({ label: 'واتساب', value: args.whatsapp, ltr: true });
+  }
+  if (args.bio) {
+    studentRows.push({ label: 'نبذة', value: args.bio });
+  }
+
+  const certsSection =
+    args.certificates && args.certificates.length > 0
+      ? `
+          <tr>
+            <td class="email-padding" style="padding: 10px 40px 0;">
+              ${sectionTitle('شهادات المتدرب')}
+              <div>${chips(args.certificates)}</div>
+            </td>
+          </tr>`
+      : '';
+
+  const body = `
+          <tr>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('تفاصيل الاستشارة')}
+              ${infoCard(consultRows, 'primary')}
+              ${spacer(12)}
+              ${quote(args.consultationDescription)}
+            </td>
+          </tr>
+
+          <tr>
+            <td class="email-padding" style="padding: 18px 40px 10px;">
+              ${sectionTitle('بيانات المتدرب')}
+              ${infoCard(studentRows)}
+            </td>
+          </tr>
+
+          ${certsSection}
+
+          <tr>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${ctaButton('مراجعة الطلب', `${APP_URL}/trainer/consultations`)}
+              ${note('روح للوحة التحكم عشان تقبل الطلب أو تحدد موعد مناسب')}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('primary', hero, body);
+}
+
+// -- Corporate Request Notification (Admin) --
+export function getCorporateRequestAdminEmailTemplate(
+  companyName: string,
+  serviceType: string,
+): string {
+  const hero = heroSection(
+    'primary',
+    'TAMKEENOVA HUB',
+    'طلب شركة جديد',
+    'تم استلام طلب خدمات مؤسسية (B2B) جديد محتاج مراجعة',
+  );
+
+  const body = `
+          <tr>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('بيانات الطلب')}
+              ${infoCard(
+                [
+                  { label: 'الشركة', value: companyName },
+                  { label: 'نوع الخدمة', value: serviceType },
+                ],
+                'primary',
+              )}
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${ctaButton('مراجعة الطلب', `${APP_URL}/admin/corporate-requests`)}
+              ${note('راجع تفاصيل الطلب وحوّله لموظف أو اتخذ قرارك من لوحة التحكم')}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('primary', hero, body);
+}
+
+// -- Volunteer Application Notification (Admin) --
+export function getVolunteerRequestEmailTemplate(
+  volunteerName: string,
+  volunteerEmail: string,
+): string {
+  const hero = heroSection(
+    'primary',
+    'TAMKEENOVA HUB',
+    'طلب انضمام متطوع جديد',
+    'في طلب تطوع جديد محتاج مراجعة من لوحة التحكم',
+  );
+
+  const body = `
+          <tr>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('بيانات المتطوع')}
+              ${infoCard(
+                [
+                  { label: 'الاسم', value: volunteerName },
+                  { label: 'البريد الإلكتروني', value: volunteerEmail, ltr: true },
+                ],
+                'primary',
+              )}
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${ctaButton('مراجعة الطلب', `${APP_URL}/admin/volunteers`)}
+              ${note('راجع الطلب واقبله أو ارفضه من لوحة تحكم المتطوعين')}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('primary', hero, body);
+}
+
+// -- Volunteer Approval --
+export function getVolunteerApprovedEmailTemplate(
+  volunteerName?: string,
+): string {
+  const hero = heroSection(
+    'success',
+    'TAMKEENOVA HUB',
+    'مبروك! تم قبول طلب التطوع 🎉',
+    volunteerName
+      ? `أهلاً ${volunteerName}، أهلًا بيك في فريق TamkeeNova HUB`
+      : 'أهلًا بيك في فريق TamkeeNova HUB',
+  );
+
+  const body = `
+          <tr>
+            <td align="center" class="email-padding" style="padding: 30px 40px 0;">
+              <p style="margin:0 0 22px; color:${BASE.textMuted}; font-size:13.5px; line-height:1.9;">
+                تقدر دلوقتي تستقبل المهام وتتابع ساعات التطوع والتقييمات والشهادات من حسابك.
+              </p>
+              ${ctaButton('تسجيل الدخول', `${APP_URL}/login`)}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('success', hero, body);
+}
+
+// -- Volunteer Rejection --
+export function getVolunteerRejectedEmailTemplate(reason: string): string {
+  const hero = heroSection(
+    'danger',
+    'TAMKEENOVA HUB',
+    'نعتذر، تم رفض طلب التطوع',
+    'شكراً لاهتمامك بالانضمام لنا',
+  );
+
+  const body = `
+          <tr>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('سبب الرفض')}
+              ${infoCard([{ label: 'السبب', value: reason }], 'danger')}
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${note('لو عندك أي استفسار، تواصل معانا وهنرد عليك في أقرب وقت')}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('danger', hero, body);
+}
+
+// -- Task Assigned (Employee / Volunteer) --
+export function getTaskAssignedEmailTemplate(args: {
+  assigneeName: string;
+  taskTitle: string;
+  deadline?: string;
+  priority?: string;
+}): string {
+  const hero = heroSection(
+    'primary',
+    'TAMKEENOVA HUB',
+    'New Task Assigned',
+    `تم إسناد مهمة جديدة إليك${
+      args.assigneeName ? ` يا ${args.assigneeName}` : ''
+    }`,
+  );
+
+  const rows: Row[] = [
+    { label: 'المهمة', value: args.taskTitle },
+    {
+      label: 'الأولوية',
+      value: priorityBadge(args.priority),
+      raw: true,
+    },
+  ];
+  if (args.deadline) {
+    rows.push({ label: 'الموعد النهائي', value: args.deadline, ltr: true });
+  }
+
+  const body = `
+          <tr>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('تفاصيل المهمة')}
+              ${infoCard(rows, 'primary')}
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${ctaButton('فتح المهمة', `${APP_URL}/tasks`)}
+              ${note('افتح المنصة للاطلاع على التفاصيل الكاملة والبدء في التنفيذ')}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('primary', hero, body);
+}
+
+// -- Task Submission (First Admin) --
+export function getTaskSubmittedAdminEmailTemplate(
+  assigneeName: string,
+  taskTitle: string,
+): string {
+  const hero = heroSection(
+    'primary',
+    'TAMKEENOVA HUB',
+    'تسليم مهمة جديد',
+    'في تسليم جديد محتاج مراجعة واتخاذ قرار',
+  );
+
+  const body = `
+          <tr>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('تفاصيل التسليم')}
+              ${infoCard(
+                [
+                  { label: 'المهمة', value: taskTitle },
+                  { label: 'المنفذ', value: assigneeName },
+                ],
+                'primary',
+              )}
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${ctaButton('مراجعة التسليم', `${APP_URL}/admin/tasks`)}
+              ${note('راجع التسليم وامنح التقييم أو اطلب إعادة التنفيذ')}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('primary', hero, body);
+}
+
+// -- Certificate Issued --
+export function getCertificateIssuedEmailTemplate(
+  holderName: string,
+  certificateTitle: string,
+  verificationCode?: string,
+): string {
+  const hero = heroSection(
+    'success',
+    'TAMKEENOVA HUB',
+    'شهادة جديدة 🎉',
+    `تهانينا ${holderName}! تم إصدار شهادة جديدة باسمك`,
+  );
+
+  const rows: Row[] = [
+    { label: 'الاسم', value: holderName },
+    { label: 'الشهادة', value: certificateTitle },
+  ];
+  if (verificationCode) {
+    rows.push({
+      label: 'رمز التحقق',
+      value: verificationCode,
+      ltr: true,
+    });
+  }
+
+  const verifyUrl = verificationCode
+    ? `${APP_URL}/verify/${verificationCode}`
+    : APP_URL;
+
+  const body = `
+          <tr>
+            <td class="email-padding" style="padding: 30px 40px 10px;">
+              ${sectionTitle('تفاصيل الشهادة')}
+              ${infoCard(rows, 'success')}
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" class="email-padding" style="padding: 26px 40px 0;">
+              ${ctaButton('التحقق من الشهادة', verifyUrl)}
+              ${note(
+                'الشهادة متاحة في حسابك ويمكن التحقق من صحتها في أي وقت عبر رمز التحقق',
+              )}
+            </td>
+          </tr>
+
+          <tr><td style="padding-bottom:24px;"></td></tr>`;
+
+  return wrapEmail('success', hero, body);
 }

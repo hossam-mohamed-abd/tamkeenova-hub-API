@@ -467,6 +467,7 @@ export class AdminService {
           holder.email,
           holder.full_name,
           dto.title,
+          verificationCode,
         );
       }
     } catch (e) {
