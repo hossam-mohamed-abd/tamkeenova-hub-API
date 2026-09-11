@@ -251,7 +251,7 @@ Authorization: Required
 **Query Parameters (all optional):**
 | Param | Type | Description |
 |-------|------|-------------|
-| `search` | string | Search by trainer name or bio |
+| `search` | string | Search by trainer name, username, bio or specialization name (case-insensitive) |
 | `specialization_id` | uuid | Filter by specialization |
 | `min_rating` | number (0-5) | Minimum rating filter |
 | `page` | number | Page number (default: 1) |

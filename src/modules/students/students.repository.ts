@@ -169,19 +169,43 @@ export class StudentsRepository {
     const { search, specialization_id, min_rating, page, limit } = params;
     const skip = (page - 1) * limit;
 
+    // NOTE: do NOT filter by `is_featured` here — it defaults to false and is
+    // never set anywhere, so including it made the search always return 0 results.
     const where: any = {
       trainer_status: 'APPROVED',
       is_available: true,
-      is_featured: true,
+      users: { is_active: true },
     };
 
-    // Search by trainer name or bio
+    // Search by trainer name, username, bio or specialization name
     if (search) {
-      where.OR = [
-        { users: { full_name: { contains: search, mode: 'insensitive' } } },
-        { bio_ar: { contains: search, mode: 'insensitive' } },
-        { bio_en: { contains: search, mode: 'insensitive' } },
-      ];
+      const trimmed = search.trim();
+      if (trimmed) {
+        where.AND = [
+          {
+            OR: [
+              {
+                users: {
+                  OR: [
+                    { full_name: { contains: trimmed, mode: 'insensitive' } },
+                    { username: { contains: trimmed, mode: 'insensitive' } },
+                  ],
+                },
+              },
+              { bio_ar: { contains: trimmed, mode: 'insensitive' } },
+              { bio_en: { contains: trimmed, mode: 'insensitive' } },
+              {
+                specializations: {
+                  OR: [
+                    { name_ar: { contains: trimmed, mode: 'insensitive' } },
+                    { name_en: { contains: trimmed, mode: 'insensitive' } },
+                  ],
+                },
+              },
+            ],
+          },
+        ];
+      }
     }
 
     // Filter by specialization
