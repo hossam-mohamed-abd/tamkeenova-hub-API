@@ -140,4 +140,109 @@ export class MailService {
       </div>`,
     );
   }
+
+  // -- Notify an Admin of a Volunteer Application --
+  async sendVolunteerRequestEmail(
+    adminEmail: string,
+    volunteerName: string,
+    volunteerEmail: string,
+  ) {
+    await this.sendEmail(
+      adminEmail,
+      'طلب انضمام متطوع جديد — TamkeeNova HUB',
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #1a73e8;">طلب انضمام متطوع جديد</h2>
+        <hr/>
+        <p><strong>الاسم:</strong> ${volunteerName}</p>
+        <p><strong>الإيميل:</strong> ${volunteerEmail}</p>
+        <p>يرجى مراجعة الطلب وقبوله أو رفضه من لوحة التحكم.</p>
+      </div>`,
+    );
+  }
+
+  // -- Notify a Volunteer That Their Application Was Approved --
+  async sendVolunteerApprovedEmail(email: string, volunteerName?: string) {
+    await this.sendEmail(
+      email,
+      'تم قبول طلب التطوع — TamkeeNova HUB',
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #1a73e8;">مبروك! تم قبولك كمتطوع</h2>
+        <hr/>
+        <p>أهلاً ${volunteerName || ''} بك في فريق TamkeeNova HUB.</p>
+        <p>تقدر دلوقتي تستقبل المهام وتتابع ساعات التطوع والتقييمات من حسابك.</p>
+      </div>`,
+    );
+  }
+
+  // -- Notify a Volunteer That Their Application Was Rejected --
+  async sendVolunteerRejectedEmail(email: string, reason: string) {
+    await this.sendEmail(
+      email,
+      'طلب التطوع — TamkeeNova HUB',
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #c0392b;">نعتذر، تم رفض طلب التطوع</h2>
+        <hr/>
+        <p><strong>سبب الرفض:</strong> ${reason}</p>
+      </div>`,
+    );
+  }
+
+  // -- Notify an Assignee of a New Task --
+  async sendTaskAssignedEmail(
+    assigneeEmail: string,
+    assigneeName: string,
+    taskTitle: string,
+    deadline?: string,
+    priority?: string,
+  ) {
+    await this.sendEmail(
+      assigneeEmail,
+      `New Task Assigned: ${taskTitle} — TamkeeNova HUB`,
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #1a73e8;">تم إسناد مهمة جديدة إليك</h2>
+        <hr/>
+        <p><strong>المهمة:</strong> ${taskTitle}</p>
+        ${priority ? `<p><strong>الأولوية:</strong> ${priority}</p>` : ''}
+        ${deadline ? `<p><strong>الموعد النهائي:</strong> ${deadline}</p>` : ''}
+        <p>يرجى فتح المنصة للاطلاع على التفاصيل والبدء في التنفيذ.</p>
+      </div>`,
+    );
+  }
+
+  // -- Notify the First Admin of a Task Submission --
+  async sendTaskSubmittedAdminEmail(
+    adminEmail: string,
+    assigneeName: string,
+    taskTitle: string,
+  ) {
+    await this.sendEmail(
+      adminEmail,
+      `تسليم مهمة جديد: ${taskTitle} — TamkeeNova HUB`,
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #1a73e8;">تم تسليم مهمة للمراجعة</h2>
+        <hr/>
+        <p><strong>المهمة:</strong> ${taskTitle}</p>
+        <p><strong>المنفذ:</strong> ${assigneeName}</p>
+        <p>يرجى مراجعة التسليم واتخاذ القرار.</p>
+      </div>`,
+    );
+  }
+
+  // -- Notify a User That a Certificate Was Issued --
+  async sendCertificateIssuedEmail(
+    email: string,
+    holderName: string,
+    certificateTitle: string,
+  ) {
+    await this.sendEmail(
+      email,
+      `شهادة جديدة: ${certificateTitle} — TamkeeNova HUB`,
+      `<div style="direction: rtl; font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto;">
+        <h2 style="color: #1a73e8;">تم إصدار شهادة جديدة لك</h2>
+        <hr/>
+        <p>أهلاً ${holderName}،</p>
+        <p>تم إضافة شهادة "${certificateTitle}" إلى حسابك ويمكن التحقق منها عبر رمز التحقق الخاص بها.</p>
+      </div>`,
+    );
+  }
 }

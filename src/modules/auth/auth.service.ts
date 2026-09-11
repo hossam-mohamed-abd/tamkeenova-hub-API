@@ -3,6 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 import { RegisterDto } from './dto/register.dto';
+import { RegisterVolunteerDto } from './dto/register-volunteer.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 
 import { AuthRepository } from './auth.repository';
@@ -150,6 +151,79 @@ export class AuthService {
           ? 'Trainer request submitted successfully. Verify your email.'
           : 'Account created successfully. Verify your email.',
 
+      user_id: user.id,
+    };
+  }
+
+  // -- Register a Volunteer (standalone flow, PENDING until admin approval) --
+  async registerVolunteer(dto: RegisterVolunteerDto) {
+    const emailExists = await this.authRepository.findUserByEmail(dto.email);
+
+    if (emailExists) {
+      throw new BadRequestException('Email already exists');
+    }
+
+    const usernameExists = await this.authRepository.findUserByUsername(
+      dto.username,
+    );
+
+    if (usernameExists) {
+      throw new BadRequestException('Username already exists');
+    }
+
+    const phoneExists = await this.authRepository.findUserByPhone(dto.phone);
+
+    if (phoneExists) {
+      throw new BadRequestException('Phone number already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 12);
+
+    const user = await this.authRepository.createUser({
+      full_name: dto.full_name,
+      username: dto.username,
+      email: dto.email,
+      phone: dto.phone,
+      password: hashedPassword,
+      role: 'VOLUNTEER',
+    });
+
+    await this.authRepository.createVolunteer({
+      user_id: user.id,
+      volunteer_status: 'PENDING',
+      bio: dto.bio || null,
+    });
+
+    const admin = await this.authRepository.findFirstAdmin();
+
+    if (admin) {
+      await this.mailService.sendVolunteerRequestEmail(
+        admin.email,
+        dto.full_name,
+        dto.email,
+      );
+
+      await this.authRepository.createNotification({
+        user_id: admin.id,
+        title: 'New Volunteer Request',
+        message: `${dto.full_name} submitted a volunteer application`,
+      });
+    }
+
+    const otp = generateOtp();
+
+    await this.authRepository.createOtp({
+      user_id: user.id,
+      otp_code: otp,
+      expires_at: new Date(Date.now() + 10 * 60 * 1000),
+    });
+
+    await this.mailService.sendOtp(user.email, otp);
+
+    return {
+      success: true,
+      message:
+        'Volunteer request submitted successfully. Verify your email. Your account will be reviewed by an admin.',
       user_id: user.id,
     };
   }

@@ -1,6 +1,7 @@
 import { Body, Controller, Post, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
+import { RegisterVolunteerDto } from './dto/register-volunteer.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
 import { LoginDto } from './dto/login.dto';
@@ -17,6 +18,12 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
+  }
+
+  // -- Register a Volunteer Account (standalone flow, PENDING until approved) --
+  @Post('register/volunteer')
+  registerVolunteer(@Body() dto: RegisterVolunteerDto) {
+    return this.authService.registerVolunteer(dto);
   }
 
   // -- Verify a User Email Address --

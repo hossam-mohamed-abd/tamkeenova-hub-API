@@ -59,6 +59,33 @@ enum corporate_status {
   COMPLETED
 }
 
+enum task_status {
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum task_priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum volunteer_status {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum certificate_type {
+  TRAINING
+  VOLUNTEER
+  OTHER
+}
+
 // ==================== MODELS ====================
 
 model email_otps {
@@ -230,6 +257,10 @@ model users {
   corporate_requests_requester_id      corporate_requests[]           @relation("corporate_requests_requester_idTousers")
   corporate_requests_assigned_to       corporate_requests[]           @relation("corporate_requests_assigned_toTousers")
   student_skills                       student_skills[]
+  volunteers                           volunteers?
+  task_assignees                       task_assignees[]
+  task_comments                        task_comments[]
+  activity_logs                        activity_logs[]
 
   @@index([is_active], map: "idx_users_active")
   @@index([email], map: "idx_users_email")
@@ -290,7 +321,7 @@ model trainer_certificates {
   title           String?   @db.VarChar(255)
   certificate_url String
   created_at      DateTime? @default(now()) @db.Timestamptz(6)
-  trainers        trainers  @relation(fields: [trainer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_certificate_trainer")
+  trainers        trainers  @relation(fields: [trainer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trainer_certificate_trainer")
 }
 
 // ==================== NEW MODELS ====================
@@ -317,23 +348,24 @@ model student_enrollments {
 }
 
 model certificates {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  student_id        String              @db.Uuid
-  trainer_id        String              @db.Uuid
-  program_id        String              @db.Uuid
-  enrollment_id     String?             @db.Uuid
-  verification_code String              @unique @db.VarChar(20)
-  title             String              @db.VarChar(255)
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  student_id        String           @db.Uuid
+  trainer_id        String?          @db.Uuid
+  program_id        String?          @db.Uuid
+  enrollment_id     String?          @db.Uuid
+  verification_code String           @unique @db.VarChar(20)
+  title             String           @db.VarChar(255)
   description       String?
   pdf_url           String?
   qr_code_url       String?
-  issued_at         DateTime            @default(now()) @db.Timestamptz(6)
-  is_valid          Boolean?            @default(true)
-  training_hours    Int?                @default(0)
+  issued_at         DateTime         @default(now()) @db.Timestamptz(6)
+  is_valid          Boolean?         @default(true)
+  training_hours    Int?             @default(0)
+  certificate_type  certificate_type @default(TRAINING)
 
-  users              users               @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_certificate_student")
-  trainers           trainers            @relation(fields: [trainer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_certificate_trainer")
-  training_programs  training_programs   @relation(fields: [program_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_certificate_program")
+  users              users                @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_certificate_student")
+  trainers           trainers?            @relation(fields: [trainer_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_certificate_trainer")
+  training_programs  training_programs?   @relation(fields: [program_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_certificate_program")
   student_enrollments student_enrollments? @relation(fields: [enrollment_id], references: [id], onDelete: SetNull, onUpdate: NoAction, map: "fk_certificate_enrollment")
 
   @@index([student_id], map: "idx_certificates_student")
@@ -444,4 +476,133 @@ model student_skills {
 
   @@unique([student_id, skill_name], map: "student_skills_student_skill_unique")
   @@index([student_id], map: "idx_student_skills_student")
+}
+
+// ==================== VOLUNTEERS ====================
+
+model volunteers {
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id           String           @unique @db.Uuid
+  volunteer_status  volunteer_status @default(PENDING)
+  rejection_reason  String?
+  approved_at       DateTime?        @db.Timestamptz(6)
+  approved_by       String?          @db.Uuid
+  bio               String?          @db.VarChar(500)
+  total_hours       Int              @default(0)
+  created_at        DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime         @default(now()) @db.Timestamptz(6)
+
+  users            users             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_volunteers_user")
+
+  @@index([user_id], map: "idx_volunteers_user_id")
+  @@index([volunteer_status], map: "idx_volunteers_status")
+}
+
+// ==================== TASKS SYSTEM ====================
+
+model tasks {
+  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_by      String         @db.Uuid
+  title           String         @db.VarChar(255)
+  description     String
+  priority        task_priority  @default(MEDIUM)
+  deadline        DateTime?      @db.Timestamptz(6)
+  required_score  Int?
+  estimated_hours Int?
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime       @default(now()) @db.Timestamptz(6)
+
+  task_assignees  task_assignees[]
+  task_comments   task_comments[]
+
+  @@index([created_by], map: "idx_tasks_created_by")
+  @@index([deadline], map: "idx_tasks_deadline")
+}
+
+model task_assignees {
+  id                 String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  task_id            String      @db.Uuid
+  user_id            String      @db.Uuid
+  task_order         Int         @default(1)
+  status             task_status @default(PENDING)
+  score              Int?
+  hours_awarded      Int         @default(0)
+  started_at         DateTime?   @db.Timestamptz(6)
+  submitted_at       DateTime?   @db.Timestamptz(6)
+  approved_at        DateTime?   @db.Timestamptz(6)
+  rejected_count     Int         @default(0)
+  resubmission_count Int         @default(0)
+  assigned_at        DateTime    @default(now()) @db.Timestamptz(6)
+
+  tasks            tasks             @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_assignee_task")
+  users            users             @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_assignee_user")
+  task_submissions task_submissions[]
+
+  @@unique([task_id, user_id], map: "task_assignees_task_user_unique")
+  @@index([task_id], map: "idx_task_assignees_task")
+  @@index([user_id], map: "idx_task_assignees_user")
+  @@index([status], map: "idx_task_assignees_status")
+}
+
+model task_submissions {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  assignee_id  String      @unique @db.Uuid
+  content      String?
+  link_url     String?
+  status       task_status @default(SUBMITTED)
+  score        Int?
+  review_note  String?
+  submitted_at DateTime    @default(now()) @db.Timestamptz(6)
+  reviewed_at  DateTime?   @db.Timestamptz(6)
+  created_at   DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime    @default(now()) @db.Timestamptz(6)
+
+  task_assignees              task_assignees              @relation(fields: [assignee_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_submission_assignee")
+  task_submission_attachments task_submission_attachments[]
+
+  @@index([assignee_id], map: "idx_task_submissions_assignee")
+}
+
+model task_submission_attachments {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submission_id String          @db.Uuid
+  file_name     String          @db.VarChar(255)
+  file_url      String
+  file_type     String          @db.VarChar(50)
+  file_size     Int             @default(0)
+  created_at    DateTime        @default(now()) @db.Timestamptz(6)
+
+  task_submissions task_submissions @relation(fields: [submission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_submission_attachment")
+
+  @@index([submission_id], map: "idx_submission_attachments_submission")
+}
+
+model task_comments {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  task_id    String   @db.Uuid
+  author_id  String   @db.Uuid
+  body       String
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  tasks tasks @relation(fields: [task_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_comment_task")
+  users users @relation(fields: [author_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_task_comment_author")
+
+  @@index([task_id], map: "idx_task_comments_task")
+}
+
+// ==================== ACTIVITY LOGS ====================
+
+model activity_logs {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id     String   @db.Uuid
+  action      String   @db.VarChar(100)
+  entity_type String?  @db.VarChar(50)
+  entity_id   String?  @db.Uuid
+  details     String?
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  users users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_activity_user")
+
+  @@index([user_id], map: "idx_activity_logs_user")
+  @@index([created_at], map: "idx_activity_logs_created")
 }

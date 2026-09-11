@@ -19,6 +19,8 @@ import { ConsultationsModule } from './modules/consultations/consultations.modul
 import { CorporateRequestsModule } from './modules/corporate-requests/corporate-requests.module';
 
 import { VerificationModule } from './modules/verification/verification.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { VerificationModule } from './modules/verification/verification.module';
     CorporateRequestsModule,
     VerificationModule,
 
+    AdminModule,
+    TasksModule,
   ],
   controllers: [AppController],
 })

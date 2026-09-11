@@ -167,6 +167,16 @@ export class AuthRepository {
       data,
     });
   }
+
+  createVolunteer(data: {
+    user_id: string;
+    volunteer_status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    bio?: string | null;
+  }) {
+    return this.prisma.volunteers.create({
+      data,
+    });
+  }
   async createTrainerCertificates(trainerId: string, urls: string[]) {
     if (!urls?.length) return;
 
