@@ -22,14 +22,18 @@ import { enrollment_status } from '@prisma/client';
 
 @Injectable()
 export class StudentsService {
+
+  // Initialize instance
   constructor(
     private readonly studentsRepo: StudentsRepository,
     private readonly storageService: StorageService,
     private readonly mailService: MailService,
   ) {}
 
-  // ==================== PROFILE ====================
 
+
+
+  // Handle get profile
   async getProfile(userId: string) {
     const profile = await this.studentsRepo.getProfile(userId);
 
@@ -55,6 +59,8 @@ export class StudentsService {
     };
   }
 
+
+  // Handle update profile
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     if (dto.username) {
       const existingUser = await this.studentsRepo.findUserByUsername(
@@ -68,6 +74,8 @@ export class StudentsService {
     return this.studentsRepo.updateProfile(userId, dto);
   }
 
+
+  // Handle upload avatar
   async uploadAvatar(userId: string, file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('No file provided');
@@ -100,8 +108,10 @@ export class StudentsService {
     return this.studentsRepo.updateAvatar(userId, result.url);
   }
 
-  // ==================== PASSWORD ====================
 
+
+
+  // Handle change password
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const currentHash = await this.studentsRepo.getPasswordHash(userId);
 
@@ -132,12 +142,16 @@ export class StudentsService {
     return { message: 'Password changed successfully' };
   }
 
-  // ==================== CONTACT INFO ====================
 
+
+
+  // Handle get contact info
   async getContactInfo(userId: string) {
     return this.studentsRepo.getContactInfo(userId);
   }
 
+
+  // Handle update contact info
   async updateContactInfo(userId: string, dto: UpdateContactInfoDto) {
     if (dto.email) {
       const existingUser = await this.studentsRepo.findUserByEmail(dto.email);
@@ -156,8 +170,10 @@ export class StudentsService {
     return this.studentsRepo.updateContactInfo(userId, dto);
   }
 
-  // ==================== TRAINER SEARCH ====================
 
+
+
+  // Handle search trainers
   async searchTrainers(dto: SearchTrainersDto) {
     return this.studentsRepo.searchTrainers({
       search: dto.search,
@@ -168,8 +184,10 @@ export class StudentsService {
     });
   }
 
-  // ==================== PROGRAMS ====================
 
+
+
+  // Handle search programs
   async searchPrograms(dto: SearchProgramsDto) {
     return this.studentsRepo.searchPrograms({
       search: dto.search,
@@ -182,6 +200,8 @@ export class StudentsService {
     });
   }
 
+
+  // Handle get program details
   async getProgramDetails(programId: string) {
     const program = await this.studentsRepo.getProgramById(programId);
 
@@ -196,10 +216,12 @@ export class StudentsService {
     };
   }
 
-  // ==================== ENROLLMENTS ====================
 
+
+
+  // Handle enroll in program
   async enrollInProgram(studentId: string, dto: EnrollProgramDto) {
-    // 1. Check program exists and is active
+
     const program = await this.studentsRepo.getProgramById(dto.program_id);
     if (!program) {
       throw new NotFoundException('Program not found');
@@ -208,7 +230,7 @@ export class StudentsService {
       throw new BadRequestException('This program is not currently available');
     }
 
-    // 2. Check student not already enrolled
+
     const existingEnrollment = await this.studentsRepo.findEnrollment(
       studentId,
       dto.program_id,
@@ -220,17 +242,17 @@ export class StudentsService {
           'You are already enrolled in this program',
         );
       }
-      // If cancelled or completed, allow re-enrollment
+
       if (
         existingEnrollment.status === 'CANCELLED' ||
         existingEnrollment.status === 'COMPLETED'
       ) {
-        // Delete old enrollment and create new one
+
         await this.studentsRepo.cancelEnrollment(existingEnrollment.id);
       }
     }
 
-    // 3. Create enrollment
+
     const enrollment = await this.studentsRepo.createEnrollment(
       studentId,
       dto.program_id,
@@ -242,6 +264,8 @@ export class StudentsService {
     };
   }
 
+
+  // Handle get my enrollments
   async getMyEnrollments(studentId: string, status?: enrollment_status) {
     const enrollments = await this.studentsRepo.getStudentEnrollments(
       studentId,
@@ -254,6 +278,8 @@ export class StudentsService {
     };
   }
 
+
+  // Handle get enrollment details
   async getEnrollmentDetails(studentId: string, enrollmentId: string) {
     const enrollment = await this.studentsRepo.getEnrollmentById(
       enrollmentId,
@@ -267,8 +293,10 @@ export class StudentsService {
     return enrollment;
   }
 
+
+  // Handle cancel enrollment
   async cancelEnrollment(studentId: string, enrollmentId: string) {
-    // 1. Check enrollment exists and belongs to student
+
     const enrollment = await this.studentsRepo.getEnrollmentById(
       enrollmentId,
       studentId,
@@ -278,14 +306,14 @@ export class StudentsService {
       throw new NotFoundException('Enrollment not found');
     }
 
-    // 2. Only ACTIVE enrollments can be cancelled
+
     if (enrollment.status !== 'ACTIVE') {
       throw new BadRequestException(
         `Cannot cancel enrollment with status "${enrollment.status}"`,
       );
     }
 
-    // 3. Cancel
+
     const cancelled = await this.studentsRepo.cancelEnrollment(enrollmentId);
 
     return {
@@ -294,8 +322,10 @@ export class StudentsService {
     };
   }
 
-  // ==================== CERTIFICATES ====================
 
+
+
+  // Handle get my certificates
   async getMyCertificates(studentId: string) {
     const certificates = await this.studentsRepo.getStudentCertificates(
       studentId,
@@ -307,6 +337,8 @@ export class StudentsService {
     };
   }
 
+
+  // Handle verify certificate
   async verifyCertificate(verificationCode: string) {
     const certificate = await this.studentsRepo.getCertificateByVerificationCode(
       verificationCode,
@@ -322,8 +354,10 @@ export class StudentsService {
     };
   }
 
-  // ==================== REVIEWS ====================
 
+
+
+  // Handle get my reviews
   async getMyReviews(studentId: string) {
     const reviews = await this.studentsRepo.getMyReviews(studentId);
     return {
@@ -332,26 +366,28 @@ export class StudentsService {
     };
   }
 
+
+  // Handle edit review
   async editReview(studentId: string, reviewId: string, dto: EditReviewDto) {
-    // 1. Check review exists and belongs to student
+
     const review = await this.studentsRepo.getReviewById(reviewId, studentId);
 
     if (!review) {
       throw new NotFoundException('Review not found');
     }
 
-    // 2. At least one field must be provided
+
     if (dto.rating === undefined && dto.comment === undefined) {
       throw new BadRequestException('At least one field (rating or comment) must be provided');
     }
 
-    // 3. Update
+
     const updated = await this.studentsRepo.updateReview(reviewId, {
       ...(dto.rating !== undefined && { rating: dto.rating }),
       ...(dto.comment !== undefined && { comment: dto.comment }),
     });
 
-    // 4. Recalculate trainer average rating
+
     const avgRating = await this.studentsRepo.getTrainerAverageRating(
       review.trainer_id,
     );
@@ -367,18 +403,20 @@ export class StudentsService {
     };
   }
 
+
+  // Handle delete review
   async deleteReview(studentId: string, reviewId: string) {
-    // 1. Check review exists and belongs to student
+
     const review = await this.studentsRepo.getReviewById(reviewId, studentId);
 
     if (!review) {
       throw new NotFoundException('Review not found');
     }
 
-    // 2. Delete
+
     await this.studentsRepo.deleteReview(reviewId);
 
-    // 3. Recalculate trainer average rating
+
     const avgRating = await this.studentsRepo.getTrainerAverageRating(
       review.trainer_id,
     );
@@ -393,8 +431,10 @@ export class StudentsService {
     };
   }
 
-  // ==================== PUBLIC PROFILE ====================
 
+
+
+  // Handle get public profile
   async getPublicProfile(username: string) {
     const profile = await this.studentsRepo.getPublicProfileByUsername(username);
 
@@ -409,7 +449,7 @@ export class StudentsService {
       ...userData
     } = profile;
 
-    // Calculate total training hours from certificates
+
     const totalHours = certificates.reduce(
       (sum, c) => sum + (c.training_hours || 0),
       0,
@@ -445,10 +485,12 @@ export class StudentsService {
     };
   }
 
-  // ==================== UTILS ====================
 
+
+
+  // Handle generate verification code
   generateVerificationCode(): string {
-    // Format: TAM-XXXXXXXX (8 hex chars)
+
     return `TAM-${randomBytes(4).toString('hex').toUpperCase()}`;
   }
 }

@@ -1,6 +1,6 @@
 import { IsBoolean, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
-// -- Update an Existing Certificate --
+
 export class UpdateCertificateDto {
   @IsOptional()
   @IsString()

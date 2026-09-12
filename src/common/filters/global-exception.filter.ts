@@ -8,12 +8,18 @@ import {
 
 import { LoggerService } from '../logger/logger.service';
 
-// -- Normalize and Log Application Exceptions --
+
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+
+
+  // Initialize instance
   constructor(private readonly logger: LoggerService) {}
 
-  // -- Log and Normalize Unhandled HTTP Exceptions --
+
+
+
+  // Handle catch
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
 

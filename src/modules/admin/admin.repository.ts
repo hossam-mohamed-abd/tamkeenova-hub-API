@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
-// -- Data Access for the Admin Module --
+
 @Injectable()
 export class AdminRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
-  // ==================== USERS ====================
 
+
+
+  // Handle get users
   async getUsers(options: {
     search?: string;
     role?: string;
@@ -54,6 +58,8 @@ export class AdminRepository {
     return { data, total };
   }
 
+
+  // Handle get user by id
   getUserById(id: string) {
     return this.prisma.users.findUnique({
       where: { id },
@@ -69,6 +75,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle update user role
   updateUserRole(id: string, role: string) {
     return this.prisma.users.update({
       where: { id },
@@ -76,6 +84,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle update user active
   updateUserActive(id: string, is_active: boolean) {
     return this.prisma.users.update({
       where: { id },
@@ -83,8 +93,10 @@ export class AdminRepository {
     });
   }
 
-  // ==================== ACTIVITY ====================
 
+
+
+  // Handle log activity
   async logActivity(data: {
     user_id: string;
     action: string;
@@ -95,6 +107,8 @@ export class AdminRepository {
     return this.prisma.activity_logs.create({ data });
   }
 
+
+  // Handle get user activity
   getUserActivity(userId: string) {
     return this.prisma.activity_logs.findMany({
       where: { user_id: userId },
@@ -103,8 +117,10 @@ export class AdminRepository {
     });
   }
 
-  // ==================== TRAINERS ====================
 
+
+
+  // Handle get trainers
   getTrainers(status?: string) {
     return this.prisma.trainers.findMany({
       where: status ? { trainer_status: status as any } : undefined,
@@ -128,6 +144,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get trainer by id
   getTrainerById(id: string) {
     return this.prisma.trainers.findUnique({
       where: { id },
@@ -140,10 +158,14 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle update trainer
   updateTrainer(id: string, data: any) {
     return this.prisma.trainers.update({ where: { id }, data });
   }
 
+
+  // Handle approve trainer
   approveTrainer(id: string, adminId: string) {
     return this.prisma.trainers.update({
       where: { id },
@@ -157,6 +179,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle reject trainer
   rejectTrainer(id: string, adminId: string, reason: string) {
     return this.prisma.trainers.update({
       where: { id },
@@ -169,6 +193,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle suspend trainer
   suspendTrainer(id: string) {
     return this.prisma.trainers.update({
       where: { id },
@@ -177,6 +203,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle activate trainer
   activateTrainer(id: string) {
     return this.prisma.trainers.update({
       where: { id },
@@ -185,28 +213,38 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle add trainer certificate
   addTrainerCertificate(trainer_id: string, data: any) {
     return this.prisma.trainer_certificates.create({
       data: { trainer_id, ...data },
     });
   }
 
+
+  // Handle delete trainer certificate
   deleteTrainerCertificate(id: string) {
     return this.prisma.trainer_certificates.delete({ where: { id } });
   }
 
+
+  // Handle add trainer document
   addTrainerDocument(trainer_id: string, data: any) {
     return this.prisma.trainer_documents.create({
       data: { trainer_id, ...data },
     });
   }
 
+
+  // Handle delete trainer document
   deleteTrainerDocument(id: string) {
     return this.prisma.trainer_documents.delete({ where: { id } });
   }
 
-  // ==================== VOLUNTEERS ====================
 
+
+
+  // Handle get volunteers
   getVolunteers(status?: string) {
     return this.prisma.volunteers.findMany({
       where: status ? { volunteer_status: status as any } : undefined,
@@ -227,6 +265,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get volunteer by id
   getVolunteerById(id: string) {
     return this.prisma.volunteers.findUnique({
       where: { id },
@@ -234,6 +274,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle create volunteer profile
   createVolunteerProfile(userId: string) {
     return this.prisma.volunteers.create({
       data: {
@@ -243,10 +285,14 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get volunteer by user id
   getVolunteerByUserId(userId: string) {
     return this.prisma.volunteers.findUnique({ where: { user_id: userId } });
   }
 
+
+  // Handle approve volunteer
   approveVolunteer(id: string, adminId: string) {
     return this.prisma.volunteers.update({
       where: { id },
@@ -260,6 +306,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle reject volunteer
   rejectVolunteer(id: string, adminId: string, reason: string) {
     return this.prisma.volunteers.update({
       where: { id },
@@ -272,8 +320,10 @@ export class AdminRepository {
     });
   }
 
-  // ==================== CERTIFICATES ====================
 
+
+
+  // Handle create certificate
   createCertificate(data: {
     student_id: string;
     trainer_id?: string | null;
@@ -319,6 +369,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get certificates
   getCertificates() {
     return this.prisma.certificates.findMany({
       orderBy: { issued_at: 'desc' },
@@ -338,6 +390,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get certificate by id
   getCertificateById(id: string) {
     return this.prisma.certificates.findUnique({
       where: { id },
@@ -345,10 +399,14 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle update certificate
   updateCertificate(id: string, data: any) {
     return this.prisma.certificates.update({ where: { id }, data });
   }
 
+
+  // Handle revoke certificate
   revokeCertificate(id: string) {
     return this.prisma.certificates.update({
       where: { id },
@@ -356,12 +414,16 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle delete certificate
   deleteCertificate(id: string) {
     return this.prisma.certificates.delete({ where: { id } });
   }
 
-  // ==================== CORPORATE REQUESTS (B2B) ====================
 
+
+
+  // Handle get corporate requests
   getCorporateRequests(status?: string) {
     return this.prisma.corporate_requests.findMany({
       where: status ? { status: status as any } : undefined,
@@ -388,6 +450,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get corporate request by id
   getCorporateRequestById(id: string) {
     return this.prisma.corporate_requests.findUnique({
       where: { id },
@@ -399,6 +463,8 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle update corporate request
   updateCorporateRequest(id: string, data: any) {
     return this.prisma.corporate_requests.update({
       where: { id },
@@ -406,8 +472,10 @@ export class AdminRepository {
     });
   }
 
-  // ==================== SPECIALIZATIONS ====================
 
+
+
+  // Handle get specialization requests
   getSpecializationRequests() {
     return this.prisma.specialization_requests.findMany({
       orderBy: { created_at: 'desc' },
@@ -419,30 +487,44 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get specialization request by id
   getSpecializationRequestById(id: string) {
     return this.prisma.specialization_requests.findUnique({ where: { id } });
   }
 
+
+  // Handle get specialization by id
   getSpecializationById(id: string) {
     return this.prisma.specializations.findUnique({ where: { id } });
   }
 
+
+  // Handle find specialization by name
   findSpecializationByName(name_ar: string) {
     return this.prisma.specializations.findFirst({ where: { name_ar } });
   }
 
+
+  // Handle create specialization
   createSpecialization(data: { name_ar: string; name_en: string }) {
     return this.prisma.specializations.create({ data });
   }
 
+
+  // Handle update specialization
   updateSpecialization(id: string, data: { name_ar?: string; name_en?: string }) {
     return this.prisma.specializations.update({ where: { id }, data });
   }
 
+
+  // Handle delete specialization
   deleteSpecialization(id: string) {
     return this.prisma.specializations.delete({ where: { id } });
   }
 
+
+  // Handle mark specialization request
   markSpecializationRequest(id: string, status: string) {
     return this.prisma.specialization_requests.update({
       where: { id },
@@ -450,8 +532,10 @@ export class AdminRepository {
     });
   }
 
-  // ==================== PROGRAMS ====================
 
+
+
+  // Handle get programs
   getPrograms() {
     return this.prisma.training_programs.findMany({
       orderBy: { created_at: 'desc' },
@@ -467,10 +551,14 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle get program by id
   getProgramById(id: string) {
     return this.prisma.training_programs.findUnique({ where: { id } });
   }
 
+
+  // Handle update program
   updateProgram(id: string, data: any) {
     return this.prisma.training_programs.update({
       where: { id },
@@ -478,12 +566,16 @@ export class AdminRepository {
     });
   }
 
+
+  // Handle delete program
   deleteProgram(id: string) {
     return this.prisma.training_programs.delete({ where: { id } });
   }
 
-  // ==================== DASHBOARD ====================
 
+
+
+  // Handle get dashboard stats
   async getDashboardStats() {
     const [
       usersCount,

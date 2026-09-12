@@ -6,7 +6,7 @@ import { TasksRepository } from './tasks.repository';
 
 import { StorageModule } from '../storage/storage.module';
 
-// -- Tasks System Module --
+
 @Module({
   imports: [StorageModule],
   controllers: [TasksController],

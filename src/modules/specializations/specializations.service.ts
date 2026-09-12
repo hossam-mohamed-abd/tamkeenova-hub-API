@@ -8,19 +8,25 @@ import { SpecializationsRepository } from './specializations.repository';
 
 import { RequestSpecializationDto } from './dto/request-specialization.dto';
 
-// -- Manage Specialization Lookup and Request Workflows --
+
 @Injectable()
 export class SpecializationsService {
+
+  // Initialize instance
   constructor(
     private readonly specializationsRepository: SpecializationsRepository,
   ) {}
 
-  // -- Retrieve Available Specializations --
+
+
+  // Handle get all
   async getAll() {
     return this.specializationsRepository.getAll();
   }
 
-  // -- Retrieve a Specialization by Identifier --
+
+
+  // Handle get by id
   async getById(id: string) {
     const specialization =
       await this.specializationsRepository.getById(id);
@@ -34,7 +40,9 @@ export class SpecializationsService {
     return specialization;
   }
 
-  // -- Submit a New Specialization Request --
+
+
+  // Handle request specialization
   async requestSpecialization(
     userId: string,
     dto: RequestSpecializationDto,

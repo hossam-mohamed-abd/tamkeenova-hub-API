@@ -3,10 +3,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class VerificationRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
-  // ==================== CERTIFICATE VERIFICATION ====================
 
+
+
+  // Handle get certificate by code
   async getCertificateByCode(code: string) {
     return this.prisma.certificates.findUnique({
       where: { verification_code: code },
@@ -61,8 +65,10 @@ export class VerificationRepository {
     });
   }
 
-  // ==================== USER VERIFICATION ====================
 
+
+
+  // Handle get user for verification
   async getUserForVerification(username: string) {
     return this.prisma.users.findUnique({
       where: {
@@ -81,7 +87,7 @@ export class VerificationRepository {
         created_at: true,
         total_training_hours: true,
 
-        // All valid certificates
+
         certificates: {
           where: { is_valid: true },
           orderBy: { issued_at: 'desc' },
@@ -116,7 +122,7 @@ export class VerificationRepository {
           },
         },
 
-        // Completed programs
+
         student_enrollments: {
           where: { status: 'COMPLETED' },
           orderBy: { completed_at: 'desc' },
@@ -144,7 +150,7 @@ export class VerificationRepository {
           },
         },
 
-        // Skills
+
         student_skills: {
           select: {
             id: true,

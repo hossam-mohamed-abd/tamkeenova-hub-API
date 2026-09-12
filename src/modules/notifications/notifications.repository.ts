@@ -3,8 +3,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class NotificationsRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
+
+  // Handle create notification
   async createNotification(data: {
     user_id: string;
     title: string;
@@ -36,6 +40,8 @@ export class NotificationsRepository {
     });
   }
 
+
+  // Handle get user notifications
   async getUserNotifications(userId: string) {
     return this.prisma.notifications.findMany({
       where: { user_id: userId },
@@ -53,6 +59,8 @@ export class NotificationsRepository {
     });
   }
 
+
+  // Handle get notification by id
   async getNotificationById(notificationId: string, userId: string) {
     return this.prisma.notifications.findFirst({
       where: {
@@ -62,6 +70,8 @@ export class NotificationsRepository {
     });
   }
 
+
+  // Handle mark as read
   async markAsRead(notificationId: string) {
     return this.prisma.notifications.update({
       where: { id: notificationId },
@@ -73,6 +83,8 @@ export class NotificationsRepository {
     });
   }
 
+
+  // Handle mark all as read
   async markAllAsRead(userId: string) {
     return this.prisma.notifications.updateMany({
       where: {
@@ -83,6 +95,8 @@ export class NotificationsRepository {
     });
   }
 
+
+  // Handle get unread count
   async getUnreadCount(userId: string) {
     return this.prisma.notifications.count({
       where: {
@@ -92,6 +106,8 @@ export class NotificationsRepository {
     });
   }
 
+
+  // Handle get admin users
   async getAdminUsers(): Promise<{ id: string; email: string }[]> {
     const admins = await this.prisma.users.findMany({
       where: {

@@ -1,6 +1,6 @@
 import { IsString, MaxLength } from 'class-validator';
 
-// -- Create / Update a Specialization --
+
 export class SpecializationDto {
   @IsString()
   @MaxLength(255)

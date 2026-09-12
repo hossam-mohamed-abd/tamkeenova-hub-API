@@ -18,14 +18,18 @@ import { corporate_status } from '@prisma/client';
 
 @Controller('corporate-requests')
 export class CorporateRequestsController {
+
+  // Initialize instance
   constructor(
     private readonly corporateRequestsService: CorporateRequestsService,
   ) {}
 
-  /**
-   * POST /api/corporate-requests
-   * Submit a new corporate request
-   */
+
+
+
+
+
+  // Handle create request
   @UseGuards(JwtAuthGuard)
   @Post()
   async createRequest(
@@ -35,10 +39,12 @@ export class CorporateRequestsController {
     return this.corporateRequestsService.createRequest(user.sub, dto);
   }
 
-  /**
-   * POST /api/corporate-requests/:id/attachments
-   * Upload attachment (RFP, PDF, etc.)
-   */
+
+
+
+
+
+  // Handle upload attachment
   @UseGuards(JwtAuthGuard)
   @Post(':id/attachments')
   @UseInterceptors(FileInterceptor('file'))
@@ -54,10 +60,12 @@ export class CorporateRequestsController {
     );
   }
 
-  /**
-   * GET /api/corporate-requests
-   * Get my corporate requests
-   */
+
+
+
+
+
+  // Handle get my requests
   @UseGuards(JwtAuthGuard)
   @Get()
   async getMyRequests(
@@ -67,10 +75,12 @@ export class CorporateRequestsController {
     return this.corporateRequestsService.getMyRequests(user.sub, status);
   }
 
-  /**
-   * GET /api/corporate-requests/:id
-   * Get corporate request details
-   */
+
+
+
+
+
+  // Handle get request details
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getRequestDetails(

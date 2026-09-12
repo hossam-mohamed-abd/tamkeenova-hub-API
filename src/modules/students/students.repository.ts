@@ -4,10 +4,14 @@ import { enrollment_status } from '@prisma/client';
 
 @Injectable()
 export class StudentsRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
-  // ==================== PROFILE ====================
 
+
+
+  // Handle get profile
   async getProfile(userId: string) {
     return this.prisma.users.findUnique({
       where: { id: userId },
@@ -40,6 +44,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle update profile
   async updateProfile(userId: string, data: {
     full_name?: string;
     bio?: string;
@@ -64,6 +70,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle update avatar
   async updateAvatar(userId: string, imageUrl: string) {
     return this.prisma.users.update({
       where: { id: userId },
@@ -78,8 +86,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== PASSWORD ====================
 
+
+
+  // Handle get password hash
   async getPasswordHash(userId: string) {
     const user = await this.prisma.users.findUnique({
       where: { id: userId },
@@ -88,6 +98,8 @@ export class StudentsRepository {
     return user?.password;
   }
 
+
+  // Handle update password
   async updatePassword(userId: string, hashedPassword: string) {
     return this.prisma.users.update({
       where: { id: userId },
@@ -96,8 +108,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== CONTACT INFO ====================
 
+
+
+  // Handle get contact info
   async getContactInfo(userId: string) {
     return this.prisma.users.findUnique({
       where: { id: userId },
@@ -112,6 +126,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle update contact info
   async updateContactInfo(userId: string, data: {
     phone?: string;
     whatsapp?: string;
@@ -134,8 +150,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== HELPERS ====================
 
+
+
+  // Handle find user by email
   async findUserByEmail(email: string) {
     return this.prisma.users.findUnique({
       where: { email },
@@ -143,6 +161,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle find user by username
   async findUserByUsername(username: string) {
     return this.prisma.users.findUnique({
       where: { username },
@@ -150,6 +170,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle find user by phone
   async findUserByPhone(phone: string) {
     return this.prisma.users.findUnique({
       where: { phone },
@@ -157,8 +179,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== TRAINER SEARCH ====================
 
+
+
+  // Handle search trainers
   async searchTrainers(params: {
     search?: string;
     specialization_id?: string;
@@ -169,15 +193,15 @@ export class StudentsRepository {
     const { search, specialization_id, min_rating, page, limit } = params;
     const skip = (page - 1) * limit;
 
-    // NOTE: do NOT filter by `is_featured` here — it defaults to false and is
-    // never set anywhere, so including it made the search always return 0 results.
+
+
     const where: any = {
       trainer_status: 'APPROVED',
       is_available: true,
       users: { is_active: true },
     };
 
-    // Search by trainer name, username, bio or specialization name
+
     if (search) {
       const trimmed = search.trim();
       if (trimmed) {
@@ -208,12 +232,12 @@ export class StudentsRepository {
       }
     }
 
-    // Filter by specialization
+
     if (specialization_id) {
       where.specialization_id = specialization_id;
     }
 
-    // Filter by minimum rating
+
     if (min_rating !== undefined) {
       where.average_rating = { gte: min_rating };
     }
@@ -263,8 +287,10 @@ export class StudentsRepository {
     };
   }
 
-  // ==================== PROGRAMS ====================
 
+
+
+  // Handle search programs
   async searchPrograms(params: {
     search?: string;
     level?: string;
@@ -281,7 +307,7 @@ export class StudentsRepository {
       is_active: true,
     };
 
-    // Search by title or description
+
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
@@ -289,17 +315,17 @@ export class StudentsRepository {
       ];
     }
 
-    // Filter by level
+
     if (level) {
       where.level = level;
     }
 
-    // Filter by trainer
+
     if (trainer_id) {
       where.trainer_id = trainer_id;
     }
 
-    // Filter by price range
+
     if (min_price !== undefined || max_price !== undefined) {
       where.price = {};
       if (min_price !== undefined) where.price.gte = min_price;
@@ -359,6 +385,8 @@ export class StudentsRepository {
     };
   }
 
+
+  // Handle get program by id
   async getProgramById(programId: string) {
     return this.prisma.training_programs.findUnique({
       where: { id: programId },
@@ -403,8 +431,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== ENROLLMENTS ====================
 
+
+
+  // Handle find enrollment
   async findEnrollment(studentId: string, programId: string) {
     return this.prisma.student_enrollments.findUnique({
       where: {
@@ -416,6 +446,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle create enrollment
   async createEnrollment(studentId: string, programId: string) {
     return this.prisma.student_enrollments.create({
       data: {
@@ -449,6 +481,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle get student enrollments
   async getStudentEnrollments(studentId: string, status?: enrollment_status) {
     const where: any = { student_id: studentId };
     if (status) {
@@ -494,6 +528,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle get enrollment by id
   async getEnrollmentById(enrollmentId: string, studentId: string) {
     return this.prisma.student_enrollments.findFirst({
       where: {
@@ -546,6 +582,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle cancel enrollment
   async cancelEnrollment(enrollmentId: string) {
     return this.prisma.student_enrollments.update({
       where: { id: enrollmentId },
@@ -561,6 +599,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle complete enrollment
   async completeEnrollment(enrollmentId: string, trainerNotes?: string) {
     return this.prisma.student_enrollments.update({
       where: { id: enrollmentId },
@@ -573,8 +613,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== CERTIFICATES ====================
 
+
+
+  // Handle create certificate
   async createCertificate(data: {
     student_id: string;
     trainer_id: string;
@@ -599,6 +641,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle get student certificates
   async getStudentCertificates(studentId: string) {
     return this.prisma.certificates.findMany({
       where: { student_id: studentId },
@@ -633,6 +677,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle get certificate by verification code
   async getCertificateByVerificationCode(code: string) {
     return this.prisma.certificates.findUnique({
       where: { verification_code: code },
@@ -674,8 +720,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== REVIEWS ====================
 
+
+
+  // Handle get my reviews
   async getMyReviews(studentId: string) {
     return this.prisma.trainer_reviews.findMany({
       where: { student_id: studentId },
@@ -701,6 +749,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle get review by id
   async getReviewById(reviewId: string, studentId: string) {
     return this.prisma.trainer_reviews.findFirst({
       where: {
@@ -718,6 +768,8 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle update review
   async updateReview(reviewId: string, data: { rating?: number; comment?: string }) {
     return this.prisma.trainer_reviews.update({
       where: { id: reviewId },
@@ -731,12 +783,16 @@ export class StudentsRepository {
     });
   }
 
+
+  // Handle delete review
   async deleteReview(reviewId: string) {
     return this.prisma.trainer_reviews.delete({
       where: { id: reviewId },
     });
   }
 
+
+  // Handle get trainer average rating
   async getTrainerAverageRating(trainerId: string) {
     const result = await this.prisma.trainer_reviews.aggregate({
       where: { trainer_id: trainerId },
@@ -749,6 +805,8 @@ export class StudentsRepository {
     };
   }
 
+
+  // Handle update trainer rating
   async updateTrainerRating(trainerId: string, average: number, count: number) {
     return this.prisma.trainers.update({
       where: { id: trainerId },
@@ -759,8 +817,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== PUBLIC PROFILE ====================
 
+
+
+  // Handle get public profile by username
   async getPublicProfileByUsername(username: string) {
     return this.prisma.users.findUnique({
       where: {
@@ -835,8 +895,10 @@ export class StudentsRepository {
     });
   }
 
-  // ==================== HELPERS ====================
 
+
+
+  // Handle get trainer user id
   async getTrainerUserId(trainerId: string) {
     const trainer = await this.prisma.trainers.findUnique({
       where: { id: trainerId },
@@ -845,6 +907,8 @@ export class StudentsRepository {
     return trainer?.user_id;
   }
 
+
+  // Handle get program trainer id
   async getProgramTrainerId(programId: string) {
     const program = await this.prisma.training_programs.findUnique({
       where: { id: programId },

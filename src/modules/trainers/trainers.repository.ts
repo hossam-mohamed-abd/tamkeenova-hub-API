@@ -4,8 +4,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class TrainersRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
+
+  // Handle get trainer profile
   getTrainerProfile(userId: string) {
     return this.prisma.trainers.findUnique({
       where: {
@@ -37,6 +41,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle update trainer
   async updateTrainer(trainerId: string, data: any) {
     return this.prisma.trainers.update({
       where: {
@@ -46,6 +52,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle delete trainer certificates
   async deleteTrainerCertificates(trainerId: string) {
     return this.prisma.trainer_certificates.deleteMany({
       where: {
@@ -54,6 +62,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle delete trainer documents
   async deleteTrainerDocuments(trainerId: string) {
     return this.prisma.trainer_documents.deleteMany({
       where: {
@@ -62,6 +72,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle create trainer certificates
   async createTrainerCertificates(trainerId: string, urls: string[]) {
     if (!urls?.length) return;
 
@@ -73,6 +85,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle create trainer documents
   async createTrainerDocuments(
     trainerId: string,
     documents: {
@@ -93,12 +107,16 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle create program
   async createProgram(data: any) {
     return this.prisma.training_programs.create({
       data,
     });
   }
 
+
+  // Handle get programs by trainer
   async getProgramsByTrainer(trainerId: string) {
     return this.prisma.training_programs.findMany({
       where: {
@@ -111,6 +129,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get program by id
   async getProgramById(id: string) {
     return this.prisma.training_programs.findUnique({
       where: {
@@ -119,6 +139,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle update program
   async updateProgram(id: string, data: any) {
     return this.prisma.training_programs.update({
       where: {
@@ -128,6 +150,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle delete program
   async deleteProgram(id: string) {
     return this.prisma.training_programs.delete({
       where: {
@@ -136,6 +160,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get trainer status
   getTrainerStatus(userId: string) {
     return this.prisma.trainers.findUnique({
       where: {
@@ -150,6 +176,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle create availability
   createAvailability(data: {
     trainer_id: string;
     day_of_week: number;
@@ -161,6 +189,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get trainer availability
   getTrainerAvailability(trainerId: string) {
     return this.prisma.trainer_availability.findMany({
       where: {
@@ -175,6 +205,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle update availability
   updateAvailability(availabilityId: string, data: any) {
     return this.prisma.trainer_availability.update({
       where: {
@@ -185,6 +217,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle delete availability
   deleteAvailability(id: string) {
     return this.prisma.trainer_availability.delete({
       where: {
@@ -193,6 +227,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle find availability by id
   findAvailabilityById(id: string) {
     return this.prisma.trainer_availability.findUnique({
       where: {
@@ -201,12 +237,16 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle create booking
   createBooking(data: any) {
     return this.prisma.trainer_bookings.create({
       data,
     });
   }
 
+
+  // Handle get trainer bookings
   getTrainerBookings(trainerId: string) {
     return this.prisma.trainer_bookings.findMany({
       where: {
@@ -230,6 +270,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle find booking by id
   findBookingById(id: string) {
     return this.prisma.trainer_bookings.findUnique({
       where: {
@@ -243,6 +285,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle update booking
   updateBooking(id: string, data: any) {
     return this.prisma.trainer_bookings.update({
       where: {
@@ -253,6 +297,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle create review
   async createReview(data: {
     trainer_id: string;
     student_id: string;
@@ -264,6 +310,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get trainer reviews
   getTrainerReviews(trainerId: string) {
     return this.prisma.trainer_reviews.findMany({
       where: {
@@ -286,6 +334,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle update trainer rating
   async updateTrainerRating(trainerId: string) {
     const reviews = await this.prisma.trainer_reviews.findMany({
       where: {
@@ -312,6 +362,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle find trainer by id
   findTrainerById(id: string) {
     return this.prisma.trainers.findUnique({
       where: {
@@ -320,6 +372,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get dashboard stats
   async getDashboardStats(userId: string) {
     const trainer = await this.prisma.trainers.findUnique({
       where: {
@@ -364,6 +418,8 @@ export class TrainersRepository {
     };
   }
 
+
+  // Handle update user profile image
   async updateUserProfileImage(userId: string, imageUrl: string) {
     return this.prisma.users.update({
       where: {
@@ -376,6 +432,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get all programs
   getAllPrograms() {
     return this.prisma.training_programs.findMany({
       where: {
@@ -405,6 +463,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get all public trainers
   async getAllPublicTrainers() {
     return this.prisma.trainers.findMany({
       where: {
@@ -439,6 +499,8 @@ export class TrainersRepository {
     });
   }
 
+
+  // Handle get public trainer profile
   async getPublicTrainerProfile(slug: string) {
     return this.prisma.trainers.findFirst({
       where: {

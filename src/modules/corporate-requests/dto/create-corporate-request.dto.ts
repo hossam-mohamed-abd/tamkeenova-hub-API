@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class CreateCorporateRequestDto {
-  // Contact info
+
   @IsString()
   @MaxLength(255)
   contact_name: string;
@@ -27,7 +27,7 @@ export class CreateCorporateRequestDto {
   @MaxLength(30)
   contact_whatsapp?: string;
 
-  // Company info
+
   @IsString()
   @MaxLength(255)
   company_name: string;
@@ -47,7 +47,7 @@ export class CreateCorporateRequestDto {
   @Min(1)
   employees_count?: number;
 
-  // Service
+
   @IsString()
   @MaxLength(100)
   service_type: string;

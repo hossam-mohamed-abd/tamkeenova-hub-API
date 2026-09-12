@@ -18,16 +18,20 @@ import { consultation_status } from '@prisma/client';
 
 @Injectable()
 export class ConsultationsService {
+
+  // Initialize instance
   constructor(
     private readonly consultationsRepo: ConsultationsRepository,
     private readonly notificationsService: NotificationsService,
     private readonly mailService: MailService,
   ) {}
 
-  // ==================== STUDENT — CREATE ====================
 
+
+
+  // Handle create consultation
   async createConsultation(studentId: string, dto: CreateConsultationDto) {
-    // 1. Get trainer info for price
+
     const consultation = await this.consultationsRepo.createConsultation({
       student_id: studentId,
       trainer_id: dto.trainer_id,
@@ -40,13 +44,13 @@ export class ConsultationsService {
       student_notes: dto.student_notes,
     });
 
-    // 2. Get full consultation with student details for email
+
     const fullConsultation = await this.consultationsRepo.getConsultationById(
       consultation.id,
     );
 
     if (fullConsultation) {
-      // 3. Send email to trainer with student details
+
       try {
         const trainerEmail = fullConsultation.trainers.users.email;
         const student = fullConsultation.users;
@@ -65,11 +69,11 @@ export class ConsultationsService {
           student.bio ?? undefined,
         );
       } catch (emailError) {
-        // Log but don't fail
+
         console.error('Failed to send consultation email to trainer:', emailError);
       }
 
-      // 4. Send notification to trainer
+
       try {
         await this.notificationsService.createNotification({
           user_id: fullConsultation.trainers.user_id,
@@ -90,8 +94,10 @@ export class ConsultationsService {
     };
   }
 
-  // ==================== STUDENT — LIST & DETAILS ====================
 
+
+
+  // Handle get my consultations
   async getMyConsultations(studentId: string, status?: consultation_status) {
     const consultations = await this.consultationsRepo.getStudentConsultations(
       studentId,
@@ -103,6 +109,8 @@ export class ConsultationsService {
     };
   }
 
+
+  // Handle get consultation details
   async getConsultationDetails(
     userId: string,
     consultationId: string,
@@ -116,7 +124,7 @@ export class ConsultationsService {
       throw new NotFoundException('Consultation not found');
     }
 
-    // Check access: only student or trainer involved can view
+
     const isStudent = consultation.student_id === userId;
     const isTrainer = consultation.trainers.user_id === userId;
 
@@ -127,8 +135,10 @@ export class ConsultationsService {
     return consultation;
   }
 
-  // ==================== STUDENT — CANCEL ====================
 
+
+
+  // Handle cancel consultation
   async cancelConsultation(studentId: string, consultationId: string) {
     const consultation = await this.consultationsRepo.getConsultationById(
       consultationId,
@@ -142,7 +152,7 @@ export class ConsultationsService {
       throw new ForbiddenException('This consultation does not belong to you');
     }
 
-    // Only PENDING can be cancelled by student
+
     if (consultation.status !== 'PENDING') {
       throw new BadRequestException(
         `Cannot cancel consultation with status "${consultation.status}"`,
@@ -154,7 +164,7 @@ export class ConsultationsService {
       'CANCELLED',
     );
 
-    // Notify trainer
+
     try {
       await this.notificationsService.createNotification({
         user_id: consultation.trainers.user_id,
@@ -174,8 +184,10 @@ export class ConsultationsService {
     };
   }
 
-  // ==================== STUDENT — REVIEW ====================
 
+
+
+  // Handle create review
   async createReview(
     studentId: string,
     consultationId: string,
@@ -197,7 +209,7 @@ export class ConsultationsService {
       throw new BadRequestException('You can only review completed consultations');
     }
 
-    // Check no existing review
+
     const existingReview = await this.consultationsRepo.findConsultationReview(
       consultationId,
     );
@@ -218,8 +230,10 @@ export class ConsultationsService {
     };
   }
 
-  // ==================== TRAINER — STATUS UPDATE ====================
 
+
+
+  // Handle update consultation status
   async updateConsultationStatus(
     trainerUserId: string,
     consultationId: string,
@@ -233,12 +247,12 @@ export class ConsultationsService {
       throw new NotFoundException('Consultation not found');
     }
 
-    // Verify trainer owns this consultation
+
     if (consultation.trainers.user_id !== trainerUserId) {
       throw new ForbiddenException('This consultation does not belong to you');
     }
 
-    // Validate status transitions
+
     const validTransitions: Record<string, ConsultationStatusAction[]> = {
       PENDING: [ConsultationStatusAction.APPROVE, ConsultationStatusAction.REJECT],
       APPROVED: [ConsultationStatusAction.SCHEDULE, ConsultationStatusAction.CANCEL],
@@ -252,7 +266,7 @@ export class ConsultationsService {
       );
     }
 
-    // Map action to new status
+
     const actionToStatus: Record<ConsultationStatusAction, consultation_status> = {
       [ConsultationStatusAction.APPROVE]: 'APPROVED',
       [ConsultationStatusAction.REJECT]: 'REJECTED',
@@ -274,7 +288,7 @@ export class ConsultationsService {
       },
     );
 
-    // Notify student about status change
+
     const statusMessages: Record<string, string> = {
       APPROVED: 'تم قبول طلب الاستشارة',
       REJECTED: 'تم رفض طلب الاستشارة',
@@ -302,13 +316,15 @@ export class ConsultationsService {
     };
   }
 
-  // ==================== TRAINER — LIST ====================
 
+
+
+  // Handle get trainer consultations
   async getTrainerConsultations(
     trainerUserId: string,
     status?: consultation_status,
   ) {
-    // Get trainer_id from user_id
+
     const consultations = await this.consultationsRepo.getTrainerConsultations(
       trainerUserId,
       status,
@@ -319,8 +335,10 @@ export class ConsultationsService {
     };
   }
 
-  // ==================== TRAINER — REVIEWS ====================
 
+
+
+  // Handle get trainer reviews
   async getTrainerReviews(trainerUserId: string) {
     const reviews = await this.consultationsRepo.getTrainerConsultationReviews(
       trainerUserId,

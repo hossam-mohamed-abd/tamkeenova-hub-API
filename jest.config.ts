@@ -2,7 +2,7 @@ import type { Config } from 'jest';
 import { pathsToModuleNameMapper } from 'ts-jest';
 import ts from 'typescript';
 
-// -- Load TypeScript Path Aliases for Jest --
+
 const { config: tsconfig } = ts.readConfigFile(
   './tsconfig.json',
   ts.sys.readFile,

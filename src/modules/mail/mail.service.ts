@@ -16,11 +16,13 @@ import {
   getCertificateIssuedEmailTemplate,
 } from './templates/mail-templates';
 
-// -- Deliver Transactional Email Notifications --
+
 @Injectable()
 export class MailService {
   private transporter;
 
+
+  // Initialize instance
   constructor(private readonly configService: ConfigService) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -31,7 +33,9 @@ export class MailService {
     });
   }
 
-  // -- Send a Fully Rendered Email Message --
+
+
+  // Handle send email
   private async sendEmail(
     to: string,
     subject: string,
@@ -47,7 +51,9 @@ export class MailService {
     });
   }
 
-  // -- Send an Email Verification OTP --
+
+
+  // Handle send otp
   async sendOtp(email: string, otp: string) {
     await this.sendEmail(
       email,
@@ -57,7 +63,9 @@ export class MailService {
     );
   }
 
-  // -- Notify an Administrator of a Trainer Application --
+
+
+  // Handle send trainer request email
   async sendTrainerRequestEmail(
     adminEmail: string,
     trainerName: string,
@@ -70,7 +78,9 @@ export class MailService {
     );
   }
 
-  // -- Notify a Trainer That Their Application Was Approved --
+
+
+  // Handle send trainer approved email
   async sendTrainerApprovedEmail(email: string, trainerName?: string) {
     await this.sendEmail(
       email,
@@ -79,7 +89,9 @@ export class MailService {
     );
   }
 
-  // -- Notify a Trainer That Their Application Was Rejected --
+
+
+  // Handle send trainer rejected email
   async sendTrainerRejectedEmail(email: string, reason: string) {
     await this.sendEmail(
       email,
@@ -88,7 +100,9 @@ export class MailService {
     );
   }
 
-  // -- Send Consultation Request Email to Trainer --
+
+
+  // Handle send consultation request email
   async sendConsultationRequestEmail(
     trainerEmail: string,
     studentName: string,
@@ -120,7 +134,9 @@ export class MailService {
     );
   }
 
-  // -- Send Corporate Request Notification to Admin --
+
+
+  // Handle send corporate request admin email
   async sendCorporateRequestAdminEmail(
     adminEmail: string,
     companyName: string,
@@ -133,7 +149,9 @@ export class MailService {
     );
   }
 
-  // -- Notify an Admin of a Volunteer Application --
+
+
+  // Handle send volunteer request email
   async sendVolunteerRequestEmail(
     adminEmail: string,
     volunteerName: string,
@@ -146,7 +164,9 @@ export class MailService {
     );
   }
 
-  // -- Notify a Volunteer That Their Application Was Approved --
+
+
+  // Handle send volunteer approved email
   async sendVolunteerApprovedEmail(email: string, volunteerName?: string) {
     await this.sendEmail(
       email,
@@ -155,7 +175,9 @@ export class MailService {
     );
   }
 
-  // -- Notify a Volunteer That Their Application Was Rejected --
+
+
+  // Handle send volunteer rejected email
   async sendVolunteerRejectedEmail(email: string, reason: string) {
     await this.sendEmail(
       email,
@@ -164,7 +186,9 @@ export class MailService {
     );
   }
 
-  // -- Notify an Assignee of a New Task --
+
+
+  // Handle send task assigned email
   async sendTaskAssignedEmail(
     assigneeEmail: string,
     assigneeName: string,
@@ -184,7 +208,9 @@ export class MailService {
     );
   }
 
-  // -- Notify the First Admin of a Task Submission --
+
+
+  // Handle send task submitted admin email
   async sendTaskSubmittedAdminEmail(
     adminEmail: string,
     assigneeName: string,
@@ -197,7 +223,9 @@ export class MailService {
     );
   }
 
-  // -- Notify a User That a Certificate Was Issued --
+
+
+  // Handle send certificate issued email
   async sendCertificateIssuedEmail(
     email: string,
     holderName: string,

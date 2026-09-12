@@ -12,16 +12,20 @@ import { MailService } from '../mail/mail.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 
-// -- Coordinate User Registration, Verification, and Authentication --
+
 @Injectable()
 export class AuthService {
+
+  // Initialize instance
   constructor(
     private readonly authRepository: AuthRepository,
     private readonly mailService: MailService,
     private readonly jwtService: JwtService,
   ) {}
 
-  // -- Register a User and Start Email Verification --
+
+
+  // Handle register
   async register(dto: RegisterDto) {
     const emailExists = await this.authRepository.findUserByEmail(dto.email);
 
@@ -155,7 +159,9 @@ export class AuthService {
     };
   }
 
-  // -- Register a Volunteer (standalone flow, PENDING until admin approval) --
+
+
+  // Handle register volunteer
   async registerVolunteer(dto: RegisterVolunteerDto) {
     const emailExists = await this.authRepository.findUserByEmail(dto.email);
 
@@ -228,7 +234,9 @@ export class AuthService {
     };
   }
 
-  // -- Verify a User Email Address with an OTP --
+
+
+  // Handle verify email
   async verifyEmail(dto: VerifyEmailDto) {
     const otpRecord = await this.authRepository.getValidOtp(dto.email, dto.otp);
 
@@ -250,7 +258,9 @@ export class AuthService {
     };
   }
 
-  // -- Replace an Expired or Unused Email Verification OTP --
+
+
+  // Handle resend otp
   async resendOtp(dto: { email: string }) {
     const user = await this.authRepository.findUserByEmail(dto.email);
 
@@ -280,7 +290,9 @@ export class AuthService {
     };
   }
 
-  // -- Authenticate a Verified Active User --
+
+
+  // Handle login
   async login(dto: LoginDto) {
     const user = await this.authRepository.findUserForLogin(dto.email);
 

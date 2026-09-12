@@ -3,32 +3,44 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class AuthRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
+
+  // Handle find user by email
   findUserByEmail(email: string) {
     return this.prisma.users.findUnique({
       where: { email },
     });
   }
 
+
+  // Handle find user by username
   findUserByUsername(username: string) {
     return this.prisma.users.findUnique({
       where: { username },
     });
   }
 
+
+  // Handle create user
   createUser(data: any) {
     return this.prisma.users.create({
       data,
     });
   }
 
+
+  // Handle create otp
   createOtp(data: any) {
     return this.prisma.email_otps.create({
       data,
     });
   }
 
+
+  // Handle invalidate old otps
   invalidateOldOtps(userId: string) {
     return this.prisma.email_otps.updateMany({
       where: {
@@ -41,6 +53,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle get valid otp
   getValidOtp(email: string, otp: string) {
     return this.prisma.email_otps.findFirst({
       where: {
@@ -56,6 +70,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle verify user
   verifyUser(userId: string) {
     return this.prisma.users.update({
       where: {
@@ -67,6 +83,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle update last login
   updateLastLogin(userId: string) {
     return this.prisma.users.update({
       where: {
@@ -78,6 +96,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle find user for login
   findUserForLogin(email: string) {
     return this.prisma.users.findUnique({
       where: {
@@ -86,6 +106,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle mark otp used
   markOtpUsed(id: string) {
     return this.prisma.email_otps.update({
       where: {
@@ -97,6 +119,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle find first admin
   findFirstAdmin() {
     return this.prisma.users.findFirst({
       where: {
@@ -106,6 +130,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle get pending trainers
   getPendingTrainers() {
     return this.prisma.trainers.findMany({
       where: {
@@ -125,6 +151,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle approve trainer
   approveTrainer(trainerId: string, adminId: string) {
     return this.prisma.trainers.update({
       where: {
@@ -144,6 +172,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle reject trainer
   rejectTrainer(trainerId: string, adminId: string, reason: string) {
     return this.prisma.trainers.update({
       where: {
@@ -162,12 +192,16 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle create trainer
   async createTrainer(data: any) {
     return this.prisma.trainers.create({
       data,
     });
   }
 
+
+  // Handle create volunteer
   createVolunteer(data: {
     user_id: string;
     volunteer_status: 'PENDING' | 'APPROVED' | 'REJECTED';
@@ -177,6 +211,8 @@ export class AuthRepository {
       data,
     });
   }
+
+  // Handle create trainer certificates
   async createTrainerCertificates(trainerId: string, urls: string[]) {
     if (!urls?.length) return;
 
@@ -188,6 +224,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle create trainer documents
   async createTrainerDocuments(
     trainerId: string,
     documents: {
@@ -211,6 +249,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle find trainer by user id
   findTrainerByUserId(userId: string) {
     return this.prisma.trainers.findUnique({
       where: {
@@ -219,6 +259,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle find user by phone
   findUserByPhone(phone: string) {
     return this.prisma.users.findUnique({
       where: {
@@ -227,6 +269,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle create notification
   async createNotification(data: {
     user_id: string;
     title: string;
@@ -241,6 +285,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle find specialization by id
   findSpecializationById(id: string) {
     return this.prisma.specializations.findUnique({
       where: {
@@ -249,6 +295,8 @@ export class AuthRepository {
     });
   }
 
+
+  // Handle create specialization
   createSpecialization(data: { name_ar: string; name_en: string }) {
     return this.prisma.specializations.create({
       data,

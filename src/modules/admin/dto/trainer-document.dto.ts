@@ -1,6 +1,6 @@
 import { IsString, IsUrl, MaxLength } from 'class-validator';
 
-// -- Add a Document to a Trainer Profile --
+
 export class TrainerDocumentDto {
   @IsString()
   @MaxLength(255)

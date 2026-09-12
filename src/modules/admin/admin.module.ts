@@ -6,7 +6,7 @@ import { AdminRepository } from './admin.repository';
 
 import { StorageModule } from '../storage/storage.module';
 
-// -- Admin Management Module --
+
 @Module({
   imports: [StorageModule],
   controllers: [AdminController],

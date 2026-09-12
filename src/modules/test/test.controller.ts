@@ -3,7 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 
 @Controller('test')
 export class TestController {
-  // -- Verify Storage Upload Configuration --
+
+
+  // Handle upload test
   @Get('upload')
   async uploadTest() {
     const supabase = createClient(

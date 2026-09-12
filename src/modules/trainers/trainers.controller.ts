@@ -32,40 +32,52 @@ import { CreateReviewDto } from './dto/create-review.dto';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 
-// -- Expose Trainer Profile, Program, and Booking Endpoints --
+
 @Controller('trainers')
 export class TrainersController {
+
+  // Initialize instance
   constructor(private readonly trainersService: TrainersService) {}
 
-  // -- Retrieve the Authenticated Trainer Profile --
+
+
+  // Handle get my profile
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMyProfile(@Req() req: any) {
     return this.trainersService.getMyProfile(req.user.sub);
   }
 
-  // -- Update the Authenticated Trainer Profile --
+
+
+  // Handle update my profile
   @UseGuards(JwtAuthGuard)
   @Patch('me')
   async updateMyProfile(@Req() req: any, @Body() dto: UpdateTrainerProfileDto) {
     return this.trainersService.updateMyProfile(req.user.sub, dto);
   }
 
-  // -- Create a Training Program --
+
+
+  // Handle create program
   @Post('programs')
   @UseGuards(JwtAuthGuard)
   createProgram(@CurrentUser() user: any, @Body() dto: CreateProgramDto) {
     return this.trainersService.createProgram(user.sub, dto);
   }
 
-  // -- Retrieve the Authenticated Trainer Programs --
+
+
+  // Handle get my programs
   @Get('programs')
   @UseGuards(JwtAuthGuard)
   getMyPrograms(@CurrentUser() user: any) {
     return this.trainersService.getMyPrograms(user.sub);
   }
 
-  // -- Update a Training Program --
+
+
+  // Handle update program
   @Put('programs/:id')
   @UseGuards(JwtAuthGuard)
   updateProgram(
@@ -76,21 +88,27 @@ export class TrainersController {
     return this.trainersService.updateProgram(user.sub, id, dto);
   }
 
-  // -- Delete a Training Program --
+
+
+  // Handle delete program
   @Delete('programs/:id')
   @UseGuards(JwtAuthGuard)
   deleteProgram(@CurrentUser() user: any, @Param('id') id: string) {
     return this.trainersService.deleteProgram(user.sub, id);
   }
 
-  // -- Retrieve the Trainer Application Status --
+
+
+  // Handle get application status
   @Get('application-status')
   @UseGuards(JwtAuthGuard)
   getApplicationStatus(@CurrentUser() user: any) {
     return this.trainersService.getApplicationStatus(user.sub);
   }
 
-  // -- Create a Trainer Availability Slot --
+
+
+  // Handle create availability
   @Post('availability')
   @UseGuards(JwtAuthGuard)
   createAvailability(
@@ -100,14 +118,18 @@ export class TrainersController {
     return this.trainersService.createAvailability(user.sub, dto);
   }
 
-  // -- Retrieve Trainer Availability Slots --
+
+
+  // Handle get availability
   @Get('availability')
   @UseGuards(JwtAuthGuard)
   getAvailability(@CurrentUser() user: any) {
     return this.trainersService.getAvailability(user.sub);
   }
 
-  // -- Update a Trainer Availability Slot --
+
+
+  // Handle update availability
   @Patch('availability/:id')
   @UseGuards(JwtAuthGuard)
   updateAvailability(
@@ -118,28 +140,36 @@ export class TrainersController {
     return this.trainersService.updateAvailability(user.sub, id, dto);
   }
 
-  // -- Delete a Trainer Availability Slot --
+
+
+  // Handle delete availability
   @Delete('availability/:id')
   @UseGuards(JwtAuthGuard)
   deleteAvailability(@CurrentUser() user: any, @Param('id') id: string) {
     return this.trainersService.deleteAvailability(user.sub, id);
   }
 
-  // -- Retrieve Trainer Bookings --
+
+
+  // Handle get bookings
   @Get('bookings')
   @UseGuards(JwtAuthGuard)
   getBookings(@CurrentUser() user: any) {
     return this.trainersService.getBookings(user.sub);
   }
 
-  // -- Retrieve a Trainer Booking by Identifier --
+
+
+  // Handle get booking details
   @Get('bookings/:id')
   @UseGuards(JwtAuthGuard)
   getBookingDetails(@CurrentUser() user: any, @Param('id') id: string) {
     return this.trainersService.getBookingDetails(user.sub, id);
   }
 
-  // -- Update a Trainer Booking Status --
+
+
+  // Handle update booking status
   @Patch('bookings/:id/status')
   @UseGuards(JwtAuthGuard)
   updateBookingStatus(
@@ -150,7 +180,9 @@ export class TrainersController {
     return this.trainersService.updateBookingStatus(user.sub, id, dto);
   }
 
-  // -- Create a Trainer Review --
+
+
+  // Handle create review
   @Post(':trainerId/reviews')
   @UseGuards(JwtAuthGuard)
   createReview(
@@ -161,25 +193,33 @@ export class TrainersController {
     return this.trainersService.createReview(user.sub, trainerId, dto);
   }
 
+
+  // Handle get all public trainers
   @Get()
   getAllPublicTrainers() {
     return this.trainersService.getAllPublicTrainers();
   }
 
-  // -- Retrieve Trainer Reviews --
+
+
+  // Handle get trainer reviews
   @Get(':trainerId/reviews')
   getTrainerReviews(@Param('trainerId') trainerId: string) {
     return this.trainersService.getTrainerReviews(trainerId);
   }
 
-  // -- Retrieve Trainer Dashboard Metrics --
+
+
+  // Handle get dashboard
   @UseGuards(JwtAuthGuard)
   @Get('dashboard')
   getDashboard(@CurrentUser() user: any) {
     return this.trainersService.getDashboardStats(user.sub);
   }
 
-  // -- Upload a Trainer Profile Image --
+
+
+  // Handle upload profile image
   @Post('upload-profile-image')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
@@ -190,12 +230,16 @@ export class TrainersController {
     return this.trainersService.uploadProfileImage(user.sub, file);
   }
 
-  // -- Retrieve All Training Programs --
+
+
+  // Handle get all programs
   @Get('/programs/all')
   getAllPrograms() {
     return this.trainersService.getAllPrograms();
   }
 
+
+  // Handle get public trainer profile
   @Get('profile/:slug')
   getPublicTrainerProfile(@Param('slug') slug: string) {
     return this.trainersService.getPublicTrainerProfile(slug);

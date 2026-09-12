@@ -20,9 +20,11 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 const ADMIN_ROLES = ['ADMIN', 'SUPER_ADMIN'];
 const TEAM_ROLES = ['EMPLOYEE', 'VOLUNTEER'];
 
-// -- Coordinate the Tasks System (Admin, Employee, Volunteer) --
+
 @Injectable()
 export class TasksService {
+
+  // Initialize instance
   constructor(
     private readonly tasksRepo: TasksRepository,
     private readonly notificationsService: NotificationsService,
@@ -30,8 +32,10 @@ export class TasksService {
     private readonly storageService: StorageService,
   ) {}
 
-  // ==================== ADMIN: CREATE / MANAGE ====================
 
+
+
+  // Handle create task
   async createTask(adminId: string, dto: CreateTaskDto) {
     if (!dto.assignees || dto.assignees.length === 0) {
       throw new BadRequestException('At least one assignee is required');
@@ -71,7 +75,7 @@ export class TasksService {
 
     await this.tasksRepo.createAssignees(task.id, assignees);
 
-    // Notify every assignee (email + in-app)
+
     await this.notifyAssignees(task, assignees);
 
     await this.tasksRepo.logActivity({
@@ -89,11 +93,15 @@ export class TasksService {
     };
   }
 
+
+  // Handle list tasks
   async listTasks(status?: string) {
     const tasks = await this.tasksRepo.listTasks(status);
     return { data: tasks, total: tasks.length };
   }
 
+
+  // Handle update task
   async updateTask(id: string, dto: UpdateTaskDto) {
     const task = await this.tasksRepo.getTaskById(id);
     if (!task) throw new NotFoundException('Task not found');
@@ -106,6 +114,8 @@ export class TasksService {
     return { success: true, message: 'Task updated', task: updated };
   }
 
+
+  // Handle delete task
   async deleteTask(id: string) {
     const task = await this.tasksRepo.getTaskById(id);
     if (!task) throw new NotFoundException('Task not found');
@@ -114,6 +124,8 @@ export class TasksService {
     return { success: true, message: 'Task deleted' };
   }
 
+
+  // Handle add assignee
   async addAssignee(taskId: string, dto: AssigneeDto) {
     const task = await this.tasksRepo.getTaskById(taskId);
     if (!task) throw new NotFoundException('Task not found');
@@ -147,6 +159,8 @@ export class TasksService {
     return { success: true, message: 'Assignee added', assignee };
   }
 
+
+  // Handle remove assignee
   async removeAssignee(taskId: string, userId: string) {
     const task = await this.tasksRepo.getTaskById(taskId);
     if (!task) throw new NotFoundException('Task not found');
@@ -155,6 +169,8 @@ export class TasksService {
     return { success: true, message: 'Assignee removed' };
   }
 
+
+  // Handle get task submissions
   async getTaskSubmissions(taskId: string) {
     const task = await this.tasksRepo.getTaskById(taskId);
     if (!task) throw new NotFoundException('Task not found');
@@ -163,6 +179,8 @@ export class TasksService {
     return { data: submissions, total: submissions.length };
   }
 
+
+  // Handle review submission
   async reviewSubmission(
     adminId: string,
     assigneeId: string,
@@ -180,7 +198,7 @@ export class TasksService {
       throw new NotFoundException('Task not found');
     }
 
-    // Auto-reject if the score is below the required score.
+
     let action = dto.action;
     if (
       dto.action === 'APPROVE' &&
@@ -212,7 +230,7 @@ export class TasksService {
         });
       }
 
-      // Award volunteer hours.
+
       if (assignee.users?.role === 'VOLUNTEER' && hours > 0) {
         try {
           await this.tasksRepo.incrementVolunteerHours(assignee.user_id, hours);
@@ -247,7 +265,7 @@ export class TasksService {
       };
     }
 
-    // REJECT
+
     await this.tasksRepo.updateAssignee(assignee.id, {
       status: 'REJECTED',
       rejected_count: { increment: 1 },
@@ -288,8 +306,10 @@ export class TasksService {
     };
   }
 
-  // ==================== ASSIGNEE: MY TASKS ====================
 
+
+
+  // Handle get my tasks
   async getMyTasks(userId: string) {
     const assignments = await this.tasksRepo.getMyAssignments(userId);
 
@@ -329,6 +349,8 @@ export class TasksService {
     return { data, total: data.length };
   }
 
+
+  // Handle get task details
   async getTaskDetails(userId: string, role: string, taskId: string) {
     const task = await this.tasksRepo.getTaskById(taskId);
     if (!task) throw new NotFoundException('Task not found');
@@ -345,6 +367,8 @@ export class TasksService {
     return task;
   }
 
+
+  // Handle start task
   async startTask(userId: string, taskId: string) {
     const assignment = await this.tasksRepo.getAssignmentByTaskAndUser(
       taskId,
@@ -371,6 +395,8 @@ export class TasksService {
     return { success: true, message: 'Task started', assignment: updated };
   }
 
+
+  // Handle submit task
   async submitTask(
     userId: string,
     taskId: string,
@@ -395,7 +421,7 @@ export class TasksService {
 
     const wasRejected = assignment.status === 'REJECTED';
 
-    // Upsert submission
+
     let submission = await this.tasksRepo.getSubmissionByAssignee(assignment.id);
 
     if (submission) {
@@ -419,7 +445,7 @@ export class TasksService {
       throw new BadRequestException('Failed to save task submission');
     }
 
-    // Upload attachments
+
     if (files && files.length > 0) {
       for (const file of files) {
         const result = await this.storageService.uploadFile(
@@ -447,7 +473,7 @@ export class TasksService {
         : assignment.resubmission_count,
     });
 
-    // Notify admins: email to the first admin, notification to the rest.
+
     const taskTitle = assignment.tasks?.title ?? 'Unknown task';
     await this.notifyAdminsOfSubmission(taskTitle, userId);
 
@@ -466,8 +492,10 @@ export class TasksService {
     };
   }
 
-  // ==================== COMMENTS ====================
 
+
+
+  // Handle add comment
   async addComment(
     userId: string,
     role: string,
@@ -493,6 +521,8 @@ export class TasksService {
     return { success: true, message: 'Comment added', comment };
   }
 
+
+  // Handle get comments
   async getComments(userId: string, role: string, taskId: string) {
     const task = await this.tasksRepo.getTaskById(taskId);
     if (!task) throw new NotFoundException('Task not found');
@@ -508,8 +538,10 @@ export class TasksService {
     return { data: comments, total: comments.length };
   }
 
-  // ==================== DASHBOARDS ====================
 
+
+
+  // Handle get dashboard
   async getDashboard(userId: string, role: string) {
     const assignments = await this.tasksRepo.getMyAssignments(userId);
     const now = new Date();
@@ -546,6 +578,8 @@ export class TasksService {
     return base;
   }
 
+
+  // Handle build volunteer stats
   private async buildVolunteerStats(userId: string, assignments: any[]) {
     const volunteer = await this.tasksRepo.getVolunteerByUserId(userId);
 
@@ -590,14 +624,18 @@ export class TasksService {
     };
   }
 
-  // ==================== HELPERS ====================
 
+
+
+  // Handle is locked
   private isLocked(taskOrder: number, assignments: any[]): boolean {
     return assignments.some(
       (a) => a.task_order < taskOrder && a.status !== 'APPROVED',
     );
   }
 
+
+  // Handle notify assignees
   private async notifyAssignees(
     task: { id: string; title: string; deadline: Date | null; priority: string },
     assignees: { user_id: string; task_order?: number }[],
@@ -629,6 +667,8 @@ export class TasksService {
     }
   }
 
+
+  // Handle notify admins of submission
   private async notifyAdminsOfSubmission(taskTitle: string, assigneeUserId: string) {
     try {
       const admins = await this.notificationsService.getAdminUsers();

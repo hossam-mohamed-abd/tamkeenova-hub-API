@@ -3,10 +3,14 @@ import { VerificationRepository } from './verification.repository';
 
 @Injectable()
 export class VerificationService {
+
+  // Initialize instance
   constructor(private readonly verificationRepo: VerificationRepository) {}
 
-  // ==================== CERTIFICATE VERIFICATION ====================
 
+
+
+  // Handle verify certificate
   async verifyCertificate(code: string) {
     const certificate = await this.verificationRepo.getCertificateByCode(code);
 
@@ -51,8 +55,10 @@ export class VerificationService {
     };
   }
 
-  // ==================== USER VERIFICATION ====================
 
+
+
+  // Handle verify user
   async verifyUser(username: string) {
     const user = await this.verificationRepo.getUserForVerification(username);
 
@@ -60,12 +66,12 @@ export class VerificationService {
       throw new NotFoundException('User not found or not verified');
     }
 
-    // Calculate total training hours
+
     const totalHours =
       user.total_training_hours ||
       user.certificates.reduce((sum, c) => sum + (c.training_hours || 0), 0);
 
-    // Collect unique trainers
+
     const trainersMap = new Map();
     user.certificates.forEach((c) => {
       if (c.trainers && !trainersMap.has(c.trainers.id)) {
@@ -79,7 +85,7 @@ export class VerificationService {
       }
     });
 
-    // Build verification record
+
     return {
       verified: true,
       user: {

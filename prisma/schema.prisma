@@ -7,7 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==================== ENUMS ====================
 
 enum booking_status {
   PENDING
@@ -86,7 +85,6 @@ enum certificate_type {
   OTHER
 }
 
-// ==================== MODELS ====================
 
 model email_otps {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -199,7 +197,6 @@ model trainers {
   is_featured                       Boolean?               @default(false)
   total_students                    Int?                   @default(0)
 
-  // Relations
   trainer_availability              trainer_availability[]
   trainer_bookings                  trainer_bookings[]
   trainer_certificates              trainer_certificates[]
@@ -234,7 +231,6 @@ model users {
   failed_login_attempts                Int                            @default(0)
   locked_until                         DateTime?                      @db.Timestamptz(6)
 
-  // New columns for student profile
   bio                                  String?                        @db.VarChar(500)
   location                             String?                        @db.VarChar(255)
   whatsapp                             String?                        @db.VarChar(30)
@@ -242,7 +238,6 @@ model users {
   linkedin_url                         String?                        @db.VarChar(500)
   total_training_hours                 Int?                           @default(0)
 
-  // Relations
   email_otps                           email_otps[]
   notifications                        notifications[]
   specialization_requests              specialization_requests[]
@@ -307,7 +302,6 @@ model training_programs {
   updated_at        DateTime? @default(now()) @db.Timestamptz(6)
   trainers          trainers  @relation(fields: [trainer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_training_program_trainer")
 
-  // New relations
   student_enrollments student_enrollments[]
   certificates        certificates[]
 
@@ -324,7 +318,6 @@ model trainer_certificates {
   trainers        trainers  @relation(fields: [trainer_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trainer_certificate_trainer")
 }
 
-// ==================== NEW MODELS ====================
 
 model student_enrollments {
   id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -478,7 +471,6 @@ model student_skills {
   @@index([student_id], map: "idx_student_skills_student")
 }
 
-// ==================== VOLUNTEERS ====================
 
 model volunteers {
   id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -498,7 +490,6 @@ model volunteers {
   @@index([volunteer_status], map: "idx_volunteers_status")
 }
 
-// ==================== TASKS SYSTEM ====================
 
 model tasks {
   id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -590,7 +581,6 @@ model task_comments {
   @@index([task_id], map: "idx_task_comments_task")
 }
 
-// ==================== ACTIVITY LOGS ====================
 
 model activity_logs {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid

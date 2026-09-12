@@ -13,6 +13,8 @@ import { corporate_status } from '@prisma/client';
 
 @Injectable()
 export class CorporateRequestsService {
+
+  // Initialize instance
   constructor(
     private readonly corporateRepo: CorporateRequestsRepository,
     private readonly notificationsService: NotificationsService,
@@ -20,15 +22,17 @@ export class CorporateRequestsService {
     private readonly storageService: StorageService,
   ) {}
 
-  // ==================== CREATE ====================
 
+
+
+  // Handle create request
   async createRequest(userId: string, dto: CreateCorporateRequestDto) {
     const request = await this.corporateRepo.createRequest({
       requester_id: userId,
       ...dto,
     });
 
-    // Notify all admins (in-app)
+
     await this.notifyAdmins(
       request.id,
       request.company_name,
@@ -41,8 +45,10 @@ export class CorporateRequestsService {
     };
   }
 
-  // ==================== UPLOAD ATTACHMENT ====================
 
+
+
+  // Handle upload attachment
   async uploadAttachment(
     userId: string,
     requestId: string,
@@ -52,7 +58,7 @@ export class CorporateRequestsService {
       throw new BadRequestException('No file provided');
     }
 
-    // Validate request exists and belongs to user
+
     const request = await this.corporateRepo.getRequestByIdMinimal(requestId);
     if (!request) {
       throw new NotFoundException('Corporate request not found');
@@ -61,7 +67,7 @@ export class CorporateRequestsService {
       throw new ForbiddenException('This request does not belong to you');
     }
 
-    // Validate file type (PDF, DOC, DOCX, images)
+
     const allowedTypes = [
       'application/pdf',
       'application/msword',
@@ -76,13 +82,13 @@ export class CorporateRequestsService {
       );
     }
 
-    // Max 10MB
+
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       throw new BadRequestException('File size must not exceed 10MB');
     }
 
-    // Upload to Supabase
+
     const result = await this.storageService.uploadFile(
       'corporate-attachments',
       file.originalname,
@@ -90,7 +96,7 @@ export class CorporateRequestsService {
       file.mimetype,
     );
 
-    // Save attachment record
+
     const attachment = await this.corporateRepo.createAttachment({
       request_id: requestId,
       file_name: file.originalname,
@@ -104,8 +110,10 @@ export class CorporateRequestsService {
     };
   }
 
-  // ==================== LIST ====================
 
+
+
+  // Handle get my requests
   async getMyRequests(userId: string, status?: corporate_status) {
     const requests = await this.corporateRepo.getStudentRequests(
       userId,
@@ -117,8 +125,10 @@ export class CorporateRequestsService {
     };
   }
 
-  // ==================== DETAILS ====================
 
+
+
+  // Handle get request details
   async getRequestDetails(userId: string, requestId: string) {
     const request = await this.corporateRepo.getRequestById(requestId);
 
@@ -133,20 +143,22 @@ export class CorporateRequestsService {
     return request;
   }
 
-  // ==================== NOTIFICATIONS ====================
 
+
+
+  // Handle notify admins
   private async notifyAdmins(
     requestId: string,
     companyName: string,
     serviceType: string,
   ) {
     try {
-      // Get all admin users
+
       const admins = await this.notificationsService.getAdminUsers();
 
       if (admins.length === 0) return;
 
-      // Send in-app notification to ALL admins
+
       await this.notificationsService.createBulkNotifications(
         admins.map((a) => a.id),
         {
@@ -158,7 +170,7 @@ export class CorporateRequestsService {
         },
       );
 
-      // Send email to FIRST admin only
+
       const firstAdmin = admins[0];
       if (firstAdmin.email) {
         try {

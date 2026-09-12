@@ -7,6 +7,8 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+
+  // Initialize instance
   constructor(private readonly config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -17,6 +19,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
+
+  // Handle validate
   async validate(payload: any) {
     return {
       id: payload.sub,

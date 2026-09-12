@@ -2,7 +2,10 @@ import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-  // -- Report API Availability --
+
+
+
+  // Handle root
   @Get()
   root() {
     return {
@@ -12,7 +15,10 @@ export class AppController {
     };
   }
 
-  // -- Report API Health Status --
+
+
+
+  // Handle health
   @Get('health')
   health() {
     return {

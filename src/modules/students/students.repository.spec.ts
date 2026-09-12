@@ -1,12 +1,12 @@
-/**
- * NOTE ON MOCKS
- * -------------
- * - `@nestjs/common` v12 is an ESM-only package. Jest can only require() it
- *   natively on Node >= 24.9, so we stub the only thing this unit needs from
- *   it at import time: the @Injectable() decorator.
- * - `PrismaService` extends the real PrismaClient; we replace it with an empty
- *   class because the tests inject their own in-memory mock anyway.
- */
+
+
+
+
+
+
+
+
+
 jest.mock('@nestjs/common', () => ({
   Injectable: () => (target: unknown) => target,
 }));
@@ -58,7 +58,7 @@ describe('StudentsRepository — searchTrainers', () => {
 
     const where = findManyMock.mock.calls[0][0].where;
 
-    // Should not put the raw search on a top-level OR (which previously clashed with other filters)
+
     expect(where.AND).toEqual([
       {
         OR: [

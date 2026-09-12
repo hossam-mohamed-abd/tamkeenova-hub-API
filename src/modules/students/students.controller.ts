@@ -26,34 +26,42 @@ import { enrollment_status } from '@prisma/client';
 
 @Controller('students')
 export class StudentsController {
+
+  // Initialize instance
   constructor(private readonly studentsService: StudentsService) {}
 
-  // ==================== PUBLIC PROFILE ====================
-  // ⚠️ MUST be before :id routes to avoid conflicts
 
-  /**
-   * GET /api/students/u/:username
-   * Public profile — no auth required
-   */
+
+
+
+
+
+
+
+  // Handle get public profile
   @Get('u/:username')
   async getPublicProfile(@Param('username') username: string) {
     return this.studentsService.getPublicProfile(username);
   }
 
-  // ==================== PROFILE ====================
 
-  /**
-   * GET /api/students/profile
-   */
+
+
+
+
+
+  // Handle get profile
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@CurrentUser() user: any) {
     return this.studentsService.getProfile(user.sub);
   }
 
-  /**
-   * PATCH /api/students/profile
-   */
+
+
+
+
+  // Handle update profile
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
   async updateProfile(
@@ -63,9 +71,11 @@ export class StudentsController {
     return this.studentsService.updateProfile(user.sub, dto);
   }
 
-  /**
-   * PATCH /api/students/avatar
-   */
+
+
+
+
+  // Handle upload avatar
   @UseGuards(JwtAuthGuard)
   @Patch('avatar')
   @UseInterceptors(FileInterceptor('file'))
@@ -76,11 +86,13 @@ export class StudentsController {
     return this.studentsService.uploadAvatar(user.sub, file);
   }
 
-  // ==================== PASSWORD ====================
 
-  /**
-   * PATCH /api/students/change-password
-   */
+
+
+
+
+
+  // Handle change password
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   async changePassword(
@@ -90,20 +102,24 @@ export class StudentsController {
     return this.studentsService.changePassword(user.sub, dto);
   }
 
-  // ==================== CONTACT INFO ====================
 
-  /**
-   * GET /api/students/contact-info
-   */
+
+
+
+
+
+  // Handle get contact info
   @UseGuards(JwtAuthGuard)
   @Get('contact-info')
   async getContactInfo(@CurrentUser() user: any) {
     return this.studentsService.getContactInfo(user.sub);
   }
 
-  /**
-   * PATCH /api/students/contact-info
-   */
+
+
+
+
+  // Handle update contact info
   @UseGuards(JwtAuthGuard)
   @Patch('contact-info')
   async updateContactInfo(
@@ -113,42 +129,50 @@ export class StudentsController {
     return this.studentsService.updateContactInfo(user.sub, dto);
   }
 
-  // ==================== TRAINER SEARCH ====================
 
-  /**
-   * GET /api/students/trainers
-   */
+
+
+
+
+
+  // Handle search trainers
   @UseGuards(JwtAuthGuard)
   @Get('trainers')
   async searchTrainers(@Query() dto: SearchTrainersDto) {
     return this.studentsService.searchTrainers(dto);
   }
 
-  // ==================== PROGRAMS ====================
 
-  /**
-   * GET /api/students/programs
-   */
+
+
+
+
+
+  // Handle search programs
   @UseGuards(JwtAuthGuard)
   @Get('programs')
   async searchPrograms(@Query() dto: SearchProgramsDto) {
     return this.studentsService.searchPrograms(dto);
   }
 
-  /**
-   * GET /api/students/programs/:id
-   */
+
+
+
+
+  // Handle get program details
   @UseGuards(JwtAuthGuard)
   @Get('programs/:id')
   async getProgramDetails(@Param('id') id: string) {
     return this.studentsService.getProgramDetails(id);
   }
 
-  // ==================== ENROLLMENTS ====================
 
-  /**
-   * POST /api/students/enrollments
-   */
+
+
+
+
+
+  // Handle enroll in program
   @UseGuards(JwtAuthGuard)
   @Post('enrollments')
   async enrollInProgram(
@@ -158,9 +182,11 @@ export class StudentsController {
     return this.studentsService.enrollInProgram(user.sub, dto);
   }
 
-  /**
-   * GET /api/students/enrollments
-   */
+
+
+
+
+  // Handle get my enrollments
   @UseGuards(JwtAuthGuard)
   @Get('enrollments')
   async getMyEnrollments(
@@ -170,9 +196,11 @@ export class StudentsController {
     return this.studentsService.getMyEnrollments(user.sub, status);
   }
 
-  /**
-   * GET /api/students/enrollments/:id
-   */
+
+
+
+
+  // Handle get enrollment details
   @UseGuards(JwtAuthGuard)
   @Get('enrollments/:id')
   async getEnrollmentDetails(
@@ -182,9 +210,11 @@ export class StudentsController {
     return this.studentsService.getEnrollmentDetails(user.sub, id);
   }
 
-  /**
-   * PATCH /api/students/enrollments/:id/cancel
-   */
+
+
+
+
+  // Handle cancel enrollment
   @UseGuards(JwtAuthGuard)
   @Patch('enrollments/:id/cancel')
   async cancelEnrollment(
@@ -194,22 +224,26 @@ export class StudentsController {
     return this.studentsService.cancelEnrollment(user.sub, id);
   }
 
-  // ==================== REVIEWS ====================
 
-  /**
-   * GET /api/students/reviews
-   * Get all my reviews
-   */
+
+
+
+
+
+
+  // Handle get my reviews
   @UseGuards(JwtAuthGuard)
   @Get('reviews')
   async getMyReviews(@CurrentUser() user: any) {
     return this.studentsService.getMyReviews(user.sub);
   }
 
-  /**
-   * PATCH /api/students/reviews/:id
-   * Edit a review
-   */
+
+
+
+
+
+  // Handle edit review
   @UseGuards(JwtAuthGuard)
   @Patch('reviews/:id')
   async editReview(
@@ -220,10 +254,12 @@ export class StudentsController {
     return this.studentsService.editReview(user.sub, id, dto);
   }
 
-  /**
-   * DELETE /api/students/reviews/:id
-   * Delete a review
-   */
+
+
+
+
+
+  // Handle delete review
   @UseGuards(JwtAuthGuard)
   @Delete('reviews/:id')
   async deleteReview(
@@ -233,21 +269,25 @@ export class StudentsController {
     return this.studentsService.deleteReview(user.sub, id);
   }
 
-  // ==================== CERTIFICATES ====================
 
-  /**
-   * GET /api/students/certificates
-   */
+
+
+
+
+
+  // Handle get my certificates
   @UseGuards(JwtAuthGuard)
   @Get('certificates')
   async getMyCertificates(@CurrentUser() user: any) {
     return this.studentsService.getMyCertificates(user.sub);
   }
 
-  /**
-   * GET /api/students/certificates/verify/:code
-   * Public endpoint — no auth required
-   */
+
+
+
+
+
+  // Handle verify certificate
   @Get('certificates/verify/:code')
   async verifyCertificate(@Param('code') code: string) {
     return this.studentsService.verifyCertificate(code);

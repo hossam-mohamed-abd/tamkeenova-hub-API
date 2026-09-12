@@ -7,7 +7,7 @@ import {
   Min,
 } from 'class-validator';
 
-// -- Update Trainer Data by an Admin --
+
 export class UpdateTrainerAdminDto {
   @IsOptional()
   @IsString()

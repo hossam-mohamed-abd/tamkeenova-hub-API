@@ -27,43 +27,55 @@ import { SubmitTaskDto } from './dto/submit-task.dto';
 import { ReviewSubmissionDto } from './dto/review-submission.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 
-// -- Tasks System Endpoints (Admin / Employee / Volunteer) --
+
 @Controller('tasks')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class TasksController {
+
+  // Initialize instance
   constructor(private readonly tasksService: TasksService) {}
 
-  // ==================== ASSIGNEE: MY TASKS & DASHBOARD ====================
-  // (declared before :id routes to avoid conflicts)
 
+
+
+
+  // Handle get my tasks
   @Get('my')
   @Roles('EMPLOYEE', 'VOLUNTEER')
   getMyTasks(@CurrentUser() user: any) {
     return this.tasksService.getMyTasks(user.sub);
   }
 
+
+  // Handle get dashboard
   @Get('dashboard')
   @Roles('EMPLOYEE', 'VOLUNTEER')
   getDashboard(@CurrentUser() user: any) {
     return this.tasksService.getDashboard(user.sub, user.role);
   }
 
-  // ==================== ADMIN: CREATE / LIST ====================
 
+
+
+  // Handle create task
   @Post()
   @Roles('ADMIN', 'SUPER_ADMIN')
   createTask(@CurrentUser() admin: any, @Body() dto: CreateTaskDto) {
     return this.tasksService.createTask(admin.sub, dto);
   }
 
+
+  // Handle list tasks
   @Get()
   @Roles('ADMIN', 'SUPER_ADMIN')
   listTasks(@Query('status') status?: string) {
     return this.tasksService.listTasks(status);
   }
 
-  // ==================== ADMIN: REVIEW ====================
 
+
+
+  // Handle review submission
   @Patch('assignees/:id/review')
   @Roles('ADMIN', 'SUPER_ADMIN')
   reviewSubmission(
@@ -74,46 +86,60 @@ export class TasksController {
     return this.tasksService.reviewSubmission(admin.sub, id, dto);
   }
 
-  // ==================== ADMIN: MANAGE A TASK ====================
 
+
+
+  // Handle update task
   @Patch(':id')
   @Roles('ADMIN', 'SUPER_ADMIN')
   updateTask(@Param('id') id: string, @Body() dto: UpdateTaskDto) {
     return this.tasksService.updateTask(id, dto);
   }
 
+
+  // Handle delete task
   @Delete(':id')
   @Roles('ADMIN', 'SUPER_ADMIN')
   deleteTask(@Param('id') id: string) {
     return this.tasksService.deleteTask(id);
   }
 
+
+  // Handle add assignee
   @Post(':id/assignees')
   @Roles('ADMIN', 'SUPER_ADMIN')
   addAssignee(@Param('id') id: string, @Body() dto: AssigneeDto) {
     return this.tasksService.addAssignee(id, dto);
   }
 
+
+  // Handle remove assignee
   @Delete(':id/assignees/:userId')
   @Roles('ADMIN', 'SUPER_ADMIN')
   removeAssignee(@Param('id') id: string, @Param('userId') userId: string) {
     return this.tasksService.removeAssignee(id, userId);
   }
 
+
+  // Handle get task submissions
   @Get(':id/submissions')
   @Roles('ADMIN', 'SUPER_ADMIN')
   getTaskSubmissions(@Param('id') id: string) {
     return this.tasksService.getTaskSubmissions(id);
   }
 
-  // ==================== ASSIGNEE: WORK ON A TASK ====================
 
+
+
+  // Handle start task
   @Patch(':id/start')
   @Roles('EMPLOYEE', 'VOLUNTEER')
   startTask(@CurrentUser() user: any, @Param('id') id: string) {
     return this.tasksService.startTask(user.sub, id);
   }
 
+
+  // Handle submit task
   @Post(':id/submit')
   @Roles('EMPLOYEE', 'VOLUNTEER')
   @UseInterceptors(FilesInterceptor('files', 10))
@@ -126,8 +152,10 @@ export class TasksController {
     return this.tasksService.submitTask(user.sub, id, dto, files);
   }
 
-  // ==================== SHARED: DETAILS & COMMENTS ====================
 
+
+
+  // Handle get comments
   @Get(':id/comments')
   @Roles('ADMIN', 'SUPER_ADMIN', 'EMPLOYEE', 'VOLUNTEER')
   getComments(
@@ -137,6 +165,8 @@ export class TasksController {
     return this.tasksService.getComments(user.sub, user.role, id);
   }
 
+
+  // Handle add comment
   @Post(':id/comments')
   @Roles('ADMIN', 'SUPER_ADMIN', 'EMPLOYEE', 'VOLUNTEER')
   addComment(
@@ -147,6 +177,8 @@ export class TasksController {
     return this.tasksService.addComment(user.sub, user.role, id, dto);
   }
 
+
+  // Handle get task details
   @Get(':id')
   @Roles('ADMIN', 'SUPER_ADMIN', 'EMPLOYEE', 'VOLUNTEER')
   getTaskDetails(

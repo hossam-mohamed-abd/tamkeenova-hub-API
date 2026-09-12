@@ -8,10 +8,13 @@ import {
 import * as jwt from 'jsonwebtoken';
 import { JwtPayload } from 'jsonwebtoken';
 
-// -- Protect Routes with JWT Authentication --
+
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  // -- Validate the Bearer Token and Attach Its Payload to the Request --
+
+
+
+  // Handle can activate
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 

@@ -8,7 +8,7 @@ import {
   Min,
 } from 'class-validator';
 
-// -- Issue a Certificate to Any User (Student / Volunteer / Trainer / ...) --
+
 export class IssueCertificateDto {
   @IsUUID()
   user_id: string;

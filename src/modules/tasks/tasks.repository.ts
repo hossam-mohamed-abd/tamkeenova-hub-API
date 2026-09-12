@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
-// -- Data Access for the Tasks System --
+
 @Injectable()
 export class TasksRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
-  // ==================== TASKS ====================
 
+
+
+  // Handle create task
   createTask(data: {
     created_by: string;
     title: string;
@@ -30,6 +34,8 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle create assignees
   createAssignees(
     taskId: string,
     assignees: { user_id: string; task_order: number }[],
@@ -43,6 +49,8 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle update task
   updateTask(id: string, data: any) {
     return this.prisma.tasks.update({
       where: { id },
@@ -50,10 +58,14 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle delete task
   deleteTask(id: string) {
     return this.prisma.tasks.delete({ where: { id } });
   }
 
+
+  // Handle get task by id
   getTaskById(id: string) {
     return this.prisma.tasks.findUnique({
       where: { id },
@@ -84,6 +96,8 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle list tasks
   listTasks(status?: string) {
     return this.prisma.tasks.findMany({
       orderBy: { created_at: 'desc' },
@@ -106,12 +120,16 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle get user by id
   getUserById(id: string) {
     return this.prisma.users.findUnique({ where: { id } });
   }
 
-  // ==================== ASSIGNEES ====================
 
+
+
+  // Handle add assignee
   addAssignee(taskId: string, data: { user_id: string; task_order: number }) {
     return this.prisma.task_assignees.create({
       data: {
@@ -122,12 +140,16 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle remove assignee
   removeAssignee(taskId: string, userId: string) {
     return this.prisma.task_assignees.deleteMany({
       where: { task_id: taskId, user_id: userId },
     });
   }
 
+
+  // Handle get assignee by id
   getAssigneeById(id: string) {
     return this.prisma.task_assignees.findUnique({
       where: { id },
@@ -138,6 +160,8 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle get assignment by task and user
   getAssignmentByTaskAndUser(taskId: string, userId: string) {
     return this.prisma.task_assignees.findUnique({
       where: { task_id_user_id: { task_id: taskId, user_id: userId } },
@@ -145,10 +169,14 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle update assignee
   updateAssignee(id: string, data: any) {
     return this.prisma.task_assignees.update({ where: { id }, data });
   }
 
+
+  // Handle get my assignments
   getMyAssignments(userId: string) {
     return this.prisma.task_assignees.findMany({
       where: { user_id: userId },
@@ -162,8 +190,10 @@ export class TasksRepository {
     });
   }
 
-  // ==================== SUBMISSIONS ====================
 
+
+
+  // Handle get submission by assignee
   getSubmissionByAssignee(assigneeId: string) {
     return this.prisma.task_submissions.findUnique({
       where: { assignee_id: assigneeId },
@@ -171,6 +201,8 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle create submission
   createSubmission(data: {
     assignee_id: string;
     content?: string | null;
@@ -186,6 +218,8 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle update submission
   updateSubmission(id: string, data: any) {
     return this.prisma.task_submissions.update({
       where: { id },
@@ -194,6 +228,8 @@ export class TasksRepository {
     });
   }
 
+
+  // Handle create submission attachment
   createSubmissionAttachment(data: {
     submission_id: string;
     file_name: string;
@@ -204,6 +240,8 @@ export class TasksRepository {
     return this.prisma.task_submission_attachments.create({ data });
   }
 
+
+  // Handle get task submissions
   getTaskSubmissions(taskId: string) {
     return this.prisma.task_submissions.findMany({
       where: { task_assignees: { task_id: taskId } },
@@ -227,12 +265,16 @@ export class TasksRepository {
     });
   }
 
-  // ==================== COMMENTS ====================
 
+
+
+  // Handle create comment
   createComment(data: { task_id: string; author_id: string; body: string }) {
     return this.prisma.task_comments.create({ data });
   }
 
+
+  // Handle get comments
   getComments(taskId: string) {
     return this.prisma.task_comments.findMany({
       where: { task_id: taskId },
@@ -245,18 +287,24 @@ export class TasksRepository {
     });
   }
 
-  // ==================== VOLUNTEER ====================
 
+
+
+  // Handle get volunteer by user id
   getVolunteerByUserId(userId: string) {
     return this.prisma.volunteers.findUnique({ where: { user_id: userId } });
   }
 
+
+  // Handle count user certificates
   countUserCertificates(userId: string) {
     return this.prisma.certificates.count({
       where: { student_id: userId, is_valid: true },
     });
   }
 
+
+  // Handle increment volunteer hours
   incrementVolunteerHours(userId: string, hours: number) {
     return this.prisma.volunteers.update({
       where: { user_id: userId },
@@ -264,8 +312,10 @@ export class TasksRepository {
     });
   }
 
-  // ==================== ACTIVITY ====================
 
+
+
+  // Handle log activity
   logActivity(data: {
     user_id: string;
     action: string;

@@ -18,14 +18,18 @@ import { consultation_status } from '@prisma/client';
 
 @Controller('consultations')
 export class ConsultationsController {
+
+  // Initialize instance
   constructor(private readonly consultationsService: ConsultationsService) {}
 
-  // ==================== STUDENT ====================
 
-  /**
-   * POST /api/consultations
-   * Create a consultation request
-   */
+
+
+
+
+
+
+  // Handle create consultation
   @UseGuards(JwtAuthGuard)
   @Post()
   async createConsultation(
@@ -35,10 +39,12 @@ export class ConsultationsController {
     return this.consultationsService.createConsultation(user.sub, dto);
   }
 
-  /**
-   * GET /api/consultations
-   * Get my consultations (as student)
-   */
+
+
+
+
+
+  // Handle get my consultations
   @UseGuards(JwtAuthGuard)
   @Get()
   async getMyConsultations(
@@ -48,10 +54,12 @@ export class ConsultationsController {
     return this.consultationsService.getMyConsultations(user.sub, status);
   }
 
-  /**
-   * GET /api/consultations/:id
-   * Get consultation details (student or trainer)
-   */
+
+
+
+
+
+  // Handle get consultation details
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getConsultationDetails(
@@ -65,10 +73,12 @@ export class ConsultationsController {
     );
   }
 
-  /**
-   * PATCH /api/consultations/:id/cancel
-   * Cancel consultation (student, only PENDING)
-   */
+
+
+
+
+
+  // Handle cancel consultation
   @UseGuards(JwtAuthGuard)
   @Patch(':id/cancel')
   async cancelConsultation(
@@ -78,10 +88,12 @@ export class ConsultationsController {
     return this.consultationsService.cancelConsultation(user.sub, id);
   }
 
-  /**
-   * POST /api/consultations/:id/review
-   * Review a completed consultation
-   */
+
+
+
+
+
+  // Handle create review
   @UseGuards(JwtAuthGuard)
   @Post(':id/review')
   async createReview(
@@ -92,12 +104,14 @@ export class ConsultationsController {
     return this.consultationsService.createReview(user.sub, id, dto);
   }
 
-  // ==================== TRAINER ====================
 
-  /**
-   * GET /api/consultations/trainer/all
-   * Get all consultations for the trainer
-   */
+
+
+
+
+
+
+  // Handle get trainer consultations
   @UseGuards(JwtAuthGuard)
   @Get('trainer/all')
   async getTrainerConsultations(
@@ -107,10 +121,12 @@ export class ConsultationsController {
     return this.consultationsService.getTrainerConsultations(user.sub, status);
   }
 
-  /**
-   * PATCH /api/consultations/:id/status
-   * Update consultation status (trainer: approve/reject/schedule/complete/cancel)
-   */
+
+
+
+
+
+  // Handle update status
   @UseGuards(JwtAuthGuard)
   @Patch(':id/status')
   async updateStatus(
@@ -125,10 +141,12 @@ export class ConsultationsController {
     );
   }
 
-  /**
-   * GET /api/consultations/trainer/reviews
-   * Get trainer's consultation reviews
-   */
+
+
+
+
+
+  // Handle get trainer reviews
   @UseGuards(JwtAuthGuard)
   @Get('trainer/reviews')
   async getTrainerReviews(@CurrentUser() user: any) {

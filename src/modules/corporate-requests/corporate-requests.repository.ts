@@ -4,8 +4,12 @@ import { corporate_status } from '@prisma/client';
 
 @Injectable()
 export class CorporateRequestsRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
+
+  // Handle create request
   async createRequest(data: {
     requester_id: string;
     contact_name: string;
@@ -48,6 +52,8 @@ export class CorporateRequestsRepository {
     });
   }
 
+
+  // Handle create attachment
   async createAttachment(data: {
     request_id: string;
     file_name: string;
@@ -64,6 +70,8 @@ export class CorporateRequestsRepository {
     });
   }
 
+
+  // Handle get student requests
   async getStudentRequests(requesterId: string, status?: corporate_status) {
     const where: any = { requester_id: requesterId };
     if (status) where.status = status;
@@ -98,6 +106,8 @@ export class CorporateRequestsRepository {
     });
   }
 
+
+  // Handle get request by id
   async getRequestById(requestId: string) {
     return this.prisma.corporate_requests.findUnique({
       where: { id: requestId },
@@ -135,6 +145,8 @@ export class CorporateRequestsRepository {
     });
   }
 
+
+  // Handle get request by id minimal
   async getRequestByIdMinimal(requestId: string) {
     return this.prisma.corporate_requests.findUnique({
       where: { id: requestId },

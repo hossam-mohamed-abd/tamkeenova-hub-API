@@ -8,11 +8,17 @@ import { Reflector } from '@nestjs/core';
 
 import { ROLES_KEY } from '../decorators/roles.decorator';
 
-// -- Guard Routes Based on the Authenticated User Role --
+
 @Injectable()
 export class RolesGuard implements CanActivate {
+
+
+  // Initialize instance
   constructor(private readonly reflector: Reflector) {}
 
+
+
+  // Handle can activate
   canActivate(context: ExecutionContext): boolean {
     const requiredRoles = this.reflector.getAllAndOverride<string[]>(
       ROLES_KEY,

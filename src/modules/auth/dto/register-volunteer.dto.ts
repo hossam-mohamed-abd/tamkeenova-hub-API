@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-// -- Payload for the Standalone Volunteer Registration Flow --
+
 export class RegisterVolunteerDto {
   @IsString()
   full_name: string;

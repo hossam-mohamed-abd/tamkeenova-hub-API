@@ -4,6 +4,8 @@ const client = new Client({
   connectionString: process.env.DATABASE_URL,
 });
 
+
+// Handle test
 async function test() {
   try {
     await client.connect();

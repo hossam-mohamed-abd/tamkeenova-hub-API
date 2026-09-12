@@ -14,7 +14,7 @@ import {
 
 import { AssigneeDto } from './assignee.dto';
 
-// -- Create a Task and Assign It to Employees / Volunteers --
+
 export class CreateTaskDto {
   @IsString()
   @MaxLength(255)

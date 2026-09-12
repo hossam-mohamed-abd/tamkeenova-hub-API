@@ -1,9 +1,4 @@
--- ============================================================
--- Tamkeenova Admin / Employee / Volunteer Migration
--- Run this on the existing PostgreSQL database (Neon / Supabase)
--- ============================================================
 
--- ==================== NEW ENUMS ====================
 
 CREATE TYPE "task_status" AS ENUM ('PENDING', 'IN_PROGRESS', 'SUBMITTED', 'APPROVED', 'REJECTED');
 
@@ -13,23 +8,8 @@ CREATE TYPE "volunteer_status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
 CREATE TYPE "certificate_type" AS ENUM ('TRAINING', 'VOLUNTEER', 'OTHER');
 
--- NOTE: "user_role" already contains EMPLOYEE, VOLUNTEER, ADMIN, SUPER_ADMIN, CLIENT
--- (it was created with the full enum in the original schema). If your database
--- predates those values, run (one at a time, outside a transaction):
---   ALTER TYPE "user_role" ADD VALUE IF NOT EXISTS 'CLIENT';
---   ALTER TYPE "user_role" ADD VALUE IF NOT EXISTS 'EMPLOYEE';
---   ALTER TYPE "user_role" ADD VALUE IF NOT EXISTS 'ADMIN';
---   ALTER TYPE "user_role" ADD VALUE IF NOT EXISTS 'SUPER_ADMIN';
---   ALTER TYPE "user_role" ADD VALUE IF NOT EXISTS 'VOLUNTEER';
 
--- ==================== ALTER certificates ====================
--- Make trainer_id / program_id optional and add a certificate type so the
--- admin can issue certificates for volunteers (or any user) without a
--- program or a trainer.
 
--- The original schema reused the constraint name "fk_certificate_trainer" for
--- both "trainer_certificates" and "certificates". Rename the trainer side so
--- the name is free for the certificates table (index names are schema-unique).
 DO $$
 BEGIN
   IF EXISTS (
@@ -60,7 +40,6 @@ ALTER TABLE "certificates"
     FOREIGN KEY ("program_id") REFERENCES "training_programs"("id")
     ON DELETE SET NULL ON UPDATE NO ACTION;
 
--- ==================== volunteers ====================
 
 CREATE TABLE "volunteers" (
   "id"               UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -84,7 +63,6 @@ CREATE TABLE "volunteers" (
 CREATE INDEX "idx_volunteers_user_id" ON "volunteers"("user_id");
 CREATE INDEX "idx_volunteers_status"  ON "volunteers"("volunteer_status");
 
--- ==================== tasks ====================
 
 CREATE TABLE "tasks" (
   "id"              UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -104,7 +82,6 @@ CREATE TABLE "tasks" (
 CREATE INDEX "idx_tasks_created_by" ON "tasks"("created_by");
 CREATE INDEX "idx_tasks_deadline"    ON "tasks"("deadline");
 
--- ==================== task_assignees ====================
 
 CREATE TABLE "task_assignees" (
   "id"                 UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -135,7 +112,6 @@ CREATE INDEX "idx_task_assignees_task"   ON "task_assignees"("task_id");
 CREATE INDEX "idx_task_assignees_user"   ON "task_assignees"("user_id");
 CREATE INDEX "idx_task_assignees_status" ON "task_assignees"("status");
 
--- ==================== task_submissions ====================
 
 CREATE TABLE "task_submissions" (
   "id"           UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -159,7 +135,6 @@ CREATE TABLE "task_submissions" (
 
 CREATE INDEX "idx_task_submissions_assignee" ON "task_submissions"("assignee_id");
 
--- ==================== task_submission_attachments ====================
 
 CREATE TABLE "task_submission_attachments" (
   "id"            UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -178,7 +153,6 @@ CREATE TABLE "task_submission_attachments" (
 
 CREATE INDEX "idx_submission_attachments_submission" ON "task_submission_attachments"("submission_id");
 
--- ==================== task_comments ====================
 
 CREATE TABLE "task_comments" (
   "id"         UUID NOT NULL DEFAULT gen_random_uuid(),
@@ -198,7 +172,6 @@ CREATE TABLE "task_comments" (
 
 CREATE INDEX "idx_task_comments_task" ON "task_comments"("task_id");
 
--- ==================== activity_logs ====================
 
 CREATE TABLE "activity_logs" (
   "id"          UUID NOT NULL DEFAULT gen_random_uuid(),

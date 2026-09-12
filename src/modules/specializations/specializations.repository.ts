@@ -3,8 +3,12 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class SpecializationsRepository {
+
+  // Initialize instance
   constructor(private readonly prisma: PrismaService) {}
 
+
+  // Handle get all
   getAll() {
     return this.prisma.specializations.findMany({
       orderBy: {
@@ -13,6 +17,8 @@ export class SpecializationsRepository {
     });
   }
 
+
+  // Handle get by id
   getById(id: string) {
     return this.prisma.specializations.findUnique({
       where: {
@@ -21,6 +27,8 @@ export class SpecializationsRepository {
     });
   }
 
+
+  // Handle find by name
   findByName(nameAr: string) {
     return this.prisma.specializations.findFirst({
       where: {
@@ -29,6 +37,8 @@ export class SpecializationsRepository {
     });
   }
 
+
+  // Handle create request
   createRequest(data: {
     user_id: string;
     name_ar: string;
