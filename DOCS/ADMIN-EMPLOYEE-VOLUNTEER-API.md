@@ -388,10 +388,12 @@ GET /api/tasks/my
   "data": [
     {
       "id": "assignee-uuid",
+      "assignee_id": "assignee-uuid",
+      "task_id": "task-uuid",
       "task_order": 1,
       "status": "PENDING",
       "is_locked": false,
-      "task": { "id": "uuid", "title": "...", "priority": "HIGH", "deadline": "...", "required_score": 80, "estimated_hours": 5 },
+      "task": { "id": "task-uuid", "title": "...", "priority": "HIGH", "deadline": "...", "required_score": 80, "estimated_hours": 5 },
       "submission": null
     }
   ],
@@ -399,11 +401,18 @@ GET /api/tasks/my
 }
 ```
 
+> **مهم للفرونت:** استخدم `task_id` (الحقل المسطّح) لما تستدعي `/start` و `/submit` و `/comments`،
+> واستخدم `assignee_id` لما تستدعي `/tasks/assignees/:id/review` (مراجعة الأدمن).
+> الحقلين كمان موجودين جوه `task.id` و `id` — بس الحقول المسطّحة هي المرجع الأوضح.
+
 ### 12.8 Start Task
 
 ```
-PATCH /api/tasks/:id/start
+PATCH /api/tasks/:task_id/start
+Authorization: Required (Employee / Volunteer)
 ```
+
+> الـ `:task_id` هنا هو نفس `task_id` اللي جاي من `GET /api/tasks/my`.
 
 ### 12.9 Submit Task (files optional)
 

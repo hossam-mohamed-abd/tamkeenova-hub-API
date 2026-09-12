@@ -299,6 +299,8 @@ export class TasksService {
 
       return {
         id: a.id,
+        assignee_id: a.id,
+        task_id: task ? task.id : null,
         task_order: a.task_order,
         status: a.status,
         score: a.score,
@@ -573,6 +575,7 @@ export class TasksService {
       .slice(0, 5)
       .map((a) => ({
         id: a.tasks?.id,
+        task_id: a.tasks?.id,
         title: a.tasks?.title,
         status: a.status,
         score: a.score,
