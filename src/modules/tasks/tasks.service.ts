@@ -176,6 +176,9 @@ export class TasksService {
     }
 
     const task = assignee.tasks;
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
 
     // Auto-reject if the score is below the required score.
     let action = dto.action;
@@ -210,7 +213,7 @@ export class TasksService {
       }
 
       // Award volunteer hours.
-      if (assignee.users.role === 'VOLUNTEER' && hours > 0) {
+      if (assignee.users?.role === 'VOLUNTEER' && hours > 0) {
         try {
           await this.tasksRepo.incrementVolunteerHours(assignee.user_id, hours);
         } catch (e) {
@@ -290,29 +293,36 @@ export class TasksService {
   async getMyTasks(userId: string) {
     const assignments = await this.tasksRepo.getMyAssignments(userId);
 
-    const data = assignments.map((a: any) => ({
-      id: a.id,
-      task_order: a.task_order,
-      status: a.status,
-      score: a.score,
-      hours_awarded: a.hours_awarded,
-      started_at: a.started_at,
-      submitted_at: a.submitted_at,
-      approved_at: a.approved_at,
-      rejected_count: a.rejected_count,
-      resubmission_count: a.resubmission_count,
-      is_locked: this.isLocked(a.task_order, assignments),
-      task: {
-        id: a.tasks.id,
-        title: a.tasks.title,
-        description: a.tasks.description,
-        priority: a.tasks.priority,
-        deadline: a.tasks.deadline,
-        required_score: a.tasks.required_score,
-        estimated_hours: a.tasks.estimated_hours,
-      },
-      submission: a.task_submissions[0] || null,
-    }));
+    const data = assignments.map((a: any) => {
+      const task = a.tasks;
+      const submissions = a.task_submissions || [];
+
+      return {
+        id: a.id,
+        task_order: a.task_order,
+        status: a.status,
+        score: a.score,
+        hours_awarded: a.hours_awarded,
+        started_at: a.started_at,
+        submitted_at: a.submitted_at,
+        approved_at: a.approved_at,
+        rejected_count: a.rejected_count,
+        resubmission_count: a.resubmission_count,
+        is_locked: this.isLocked(a.task_order, assignments),
+        task: task
+          ? {
+              id: task.id,
+              title: task.title,
+              description: task.description,
+              priority: task.priority,
+              deadline: task.deadline,
+              required_score: task.required_score,
+              estimated_hours: task.estimated_hours,
+            }
+          : null,
+        submission: submissions[0] || null,
+      };
+    });
 
     return { data, total: data.length };
   }
@@ -436,14 +446,15 @@ export class TasksService {
     });
 
     // Notify admins: email to the first admin, notification to the rest.
-    await this.notifyAdminsOfSubmission(assignment.tasks.title, userId);
+    const taskTitle = assignment.tasks?.title ?? 'Unknown task';
+    await this.notifyAdminsOfSubmission(taskTitle, userId);
 
     await this.tasksRepo.logActivity({
       user_id: userId,
       action: 'TASK_SUBMITTED',
       entity_type: 'TASK',
       entity_id: taskId,
-      details: `Submitted task "${assignment.tasks.title}"`,
+      details: `Submitted task "${taskTitle}"`,
     });
 
     return {
@@ -507,7 +518,7 @@ export class TasksService {
     const completed = assignments.filter((a: any) => a.status === 'APPROVED').length;
     const delayed = assignments.filter(
       (a: any) =>
-        a.tasks.deadline &&
+        a.tasks?.deadline &&
         a.tasks.deadline < now &&
         !['APPROVED', 'REJECTED'].includes(a.status),
     ).length;
@@ -544,7 +555,10 @@ export class TasksService {
 
     const approved = assignments.filter((a) => a.status === 'APPROVED');
     const onTime = approved.filter(
-      (a) => a.tasks.deadline && a.submitted_at && a.submitted_at <= a.tasks.deadline,
+      (a) =>
+        a.tasks?.deadline &&
+        a.submitted_at &&
+        a.submitted_at <= a.tasks.deadline,
     ).length;
     const onTimeRate =
       approved.length === 0 ? null : Math.round((onTime / approved.length) * 100);
@@ -558,8 +572,8 @@ export class TasksService {
       )
       .slice(0, 5)
       .map((a) => ({
-        id: a.tasks.id,
-        title: a.tasks.title,
+        id: a.tasks?.id,
+        title: a.tasks?.title,
         status: a.status,
         score: a.score,
       }));
