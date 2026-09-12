@@ -424,12 +424,19 @@ Content-Type: multipart/form-data  (عشان ترفع ملفات)
 | Field | Type | الوصف |
 |-------|------|-------|
 | `content` | text | نص التسليم |
-| `link_url` | text | لينك |
+| `link_url` | text | لينك — **لينك عادي** زي `https://example.com/...` |
 | `files` | files | حتى 10 ملفات (PDF / ZIP / صور / ...) |
+
+> **ملاحظة مهمة للفرونت:** `link_url` لازم يتبعت **لينك عادي** (URL خام)، مش بصيغة Markdown
+> زي `[https://...](https://...)`. الباك اند بيعمل normalize تلقائيًا لو وصلت صيغة Markdown،
+> بس الأفضل تبعت اللينك الخام مباشرة.
+>
+> مثال صحيح: `link_url = "https://localhost:4200/portal/volunteer/tasks"`
 
 ```javascript
 const fd = new FormData();
 fd.append('content', 'تم التنفيذ');
+fd.append('link_url', 'https://example.com/result');   // لينك خام بدون [ ] أو ( )
 fd.append('files', fileInput.files[0]);
 fetch('/api/tasks/task-id/submit', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
 ```
